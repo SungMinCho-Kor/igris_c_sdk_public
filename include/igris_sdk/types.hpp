@@ -90,48 +90,4 @@ enum MotorError : uint32_t {
 constexpr int NUM_MOTORS    = 31;
 constexpr uint32_t N_JOINTS = igris_c::msg::dds::N_JOINTS;
 
-// Motor index definitions for Motor Space (MS)
-namespace MotorIndex {
-// Left Leg (0-5)
-constexpr uint16_t L_HIP_PITCH   = 0;
-constexpr uint16_t L_HIP_ROLL    = 1;
-constexpr uint16_t L_HIP_YAW     = 2;
-constexpr uint16_t L_KNEE        = 3;
-constexpr uint16_t L_ANKLE_PITCH = 4;
-constexpr uint16_t L_ANKLE_ROLL  = 5;
-
-// Right Leg (6-11)
-constexpr uint16_t R_HIP_PITCH   = 6;
-constexpr uint16_t R_HIP_ROLL    = 7;
-constexpr uint16_t R_HIP_YAW     = 8;
-constexpr uint16_t R_KNEE        = 9;
-constexpr uint16_t R_ANKLE_PITCH = 10;
-constexpr uint16_t R_ANKLE_ROLL  = 11;
-
-// Waist (12-14)
-constexpr uint16_t WAIST_YAW   = 12;
-constexpr uint16_t WAIST_ROLL  = 13;
-constexpr uint16_t WAIST_PITCH = 14;
-
-// Left Arm (15-22)
-constexpr uint16_t L_SHOULDER_PITCH = 15;
-constexpr uint16_t L_SHOULDER_ROLL  = 16;
-constexpr uint16_t L_SHOULDER_YAW   = 17;
-constexpr uint16_t L_ELBOW          = 18;
-constexpr uint16_t L_WRIST_ROLL     = 19;
-constexpr uint16_t L_WRIST_PITCH    = 20;
-constexpr uint16_t L_WRIST_YAW      = 21;
-constexpr uint16_t L_HAND           = 22;
-
-// Right Arm (23-30)
-constexpr uint16_t R_SHOULDER_PITCH = 23;
-constexpr uint16_t R_SHOULDER_ROLL  = 24;
-constexpr uint16_t R_SHOULDER_YAW   = 25;
-constexpr uint16_t R_ELBOW          = 26;
-constexpr uint16_t R_WRIST_ROLL     = 27;
-constexpr uint16_t R_WRIST_PITCH    = 28;
-constexpr uint16_t R_WRIST_YAW      = 29;
-constexpr uint16_t R_HAND           = 30;
-}  // namespace MotorIndex
-
 }  // namespace igris_sdk
