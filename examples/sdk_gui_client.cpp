@@ -101,12 +101,13 @@ static LowState g_latest_lowstate;
 static std::mutex g_lowstate_mutex;
 static bool g_first_state_received = false;
 
-// ControlModeState subscription
+// ControlModeState subscription (auto-subscribe at startup)
 static ControlModeState g_latest_controlmodestate;
 static std::mutex g_controlmodestate_mutex;
-static std::atomic<bool> g_controlmodestate_subscribed(false);
+static std::atomic<bool> g_controlmodestate_connected(false);
 static std::atomic<uint32_t> g_controlmodestate_received_count(0);
 static std::unique_ptr<Subscriber<ControlModeState>> g_controlmodestate_sub;
+static std::chrono::steady_clock::time_point g_last_controlmodestate_time;
 
 // Initial reference values (set on first state receive)
 static std::array<float, 31> g_initial_motor_pos = {};
@@ -133,6 +134,33 @@ static std::deque<std::string> g_response_log;
 static std::mutex g_log_mutex;
 static const size_t MAX_LOG_LINES = 50;
 
+// PD gains default values
+static const std::array<float, 31> DEFAULT_KP = {
+    50.0f,  25.0f,  25.0f,                              // Waist
+    500.0f, 200.0f, 50.0f, 500.0f, 300.0f, 300.0f,      // Left leg
+    500.0f, 200.0f, 50.0f, 500.0f, 300.0f, 300.0f,      // Right leg
+    50.0f,  50.0f,  30.0f, 30.0f,  5.0f,   5.0f,  5.0f, // Left arm
+    50.0f,  50.0f,  30.0f, 30.0f,  5.0f,   5.0f,  5.0f, // Right arm
+    2.0f,   5.0f                                        // Neck
+};
+static const std::array<float, 31> DEFAULT_KD = {
+    0.8f,  0.8f, 0.8f,                          // Waist
+    3.0f,  0.5f, 0.5f,  3.0f,  1.5f, 1.5f,      // Left leg
+    3.0f,  0.5f, 0.5f,  3.0f,  1.5f, 1.5f,      // Right leg
+    0.5f,  0.5f, 0.15f, 0.15f, 0.1f, 0.1f, 0.1f, // Left arm
+    0.5f,  0.5f, 0.15f, 0.15f, 0.1f, 0.1f, 0.1f, // Right arm
+    0.05f, 0.1f                                  // Neck
+};
+
+// PD gains (editable, initialized from defaults)
+static std::array<float, 31> g_kp = DEFAULT_KP;
+static std::array<float, 31> g_kd = DEFAULT_KD;
+// Temporary edit buffers for kp/kd (applied on enter or focus loss)
+static std::array<float, 31> g_kp_edit = DEFAULT_KP;
+static std::array<float, 31> g_kd_edit = DEFAULT_KD;
+// Temporary edit buffers for position (applied on enter or focus loss)
+static std::array<float, 31> g_pos_edit = {};
+
 void SignalHandler(int) { g_running = false; }
 
 // Add log entry
@@ -156,6 +184,8 @@ void ControlModeStateCallback(const ControlModeState &state) {
     std::lock_guard<std::mutex> lock(g_controlmodestate_mutex);
     g_latest_controlmodestate = state;
     g_controlmodestate_received_count++;
+    g_last_controlmodestate_time = std::chrono::steady_clock::now();
+    g_controlmodestate_connected = true;
 }
 
 // Helper to convert ControlMode to string
@@ -252,49 +282,50 @@ void CallSetControlModeAsync(IgrisC_Client *client, ControlMode mode, const char
             std::string("SetControlMode(") + mode_name_copy + "): " + (res.success() ? "SUCCESS" : "FAILED") + " - " + res.message();
         AddLog(result);
 
-        // Activate LOW_LEVEL publishing if mode is LOW_LEVEL
-        if (res.success() && mode == ControlMode::CONTROL_MODE_LOW_LEVEL) {
-            // Initialize target positions to current positions
-            {
-                std::lock_guard<std::mutex> lock_state(g_lowstate_mutex);
-                std::lock_guard<std::mutex> lock_target(g_target_mutex);
-                for (int i = 0; i < 31; i++) {
-                    g_target_joint_pos[i] = g_latest_lowstate.joint_state()[i].q();
-                    g_target_motor_pos[i] = g_latest_lowstate.motor_state()[i].q();
-                }
+        // Stop LowCmd publishing when switching away from LOW_LEVEL
+        if (res.success() && mode != ControlMode::CONTROL_MODE_LOW_LEVEL) {
+            if (g_lowlevel_active) {
+                g_lowlevel_active = false;
+                AddLog("LowCmd publishing stopped (mode changed)");
             }
-            g_lowlevel_active = true;
-            AddLog("LOW_LEVEL mode activated - initialized to current positions");
-        } else if (mode != ControlMode::CONTROL_MODE_LOW_LEVEL) {
-            g_lowlevel_active = false;
-            AddLog("LOW_LEVEL mode deactivated");
         }
         g_service_call_in_progress = false;
     }).detach();
+}
+
+// Start LowCmd publishing
+void StartLowCmdPublishing() {
+    if (g_lowlevel_active) {
+        AddLog("LowCmd publishing already active");
+        return;
+    }
+    // Initialize target positions to current positions
+    {
+        std::lock_guard<std::mutex> lock_state(g_lowstate_mutex);
+        std::lock_guard<std::mutex> lock_target(g_target_mutex);
+        for (int i = 0; i < 31; i++) {
+            g_target_joint_pos[i] = g_latest_lowstate.joint_state()[i].q();
+            g_target_motor_pos[i] = g_latest_lowstate.motor_state()[i].q();
+        }
+    }
+    g_lowlevel_active = true;
+    AddLog("LowCmd publishing started - initialized to current positions");
+}
+
+// Stop LowCmd publishing
+void StopLowCmdPublishing() {
+    if (!g_lowlevel_active) {
+        AddLog("LowCmd publishing already stopped");
+        return;
+    }
+    g_lowlevel_active = false;
+    AddLog("LowCmd publishing stopped");
 }
 
 // 300Hz LowCmd publishing thread
 void LowCmdPublishThread(Publisher<LowCmd> *publisher) {
     const auto period = std::chrono::microseconds(3333);  // ~300Hz
     auto next_time    = std::chrono::steady_clock::now();
-
-    // Example default PD gains - adjust these values based on your robot configuration
-    static const std::array<float, 31> default_kp = {
-        50.0,  25.0,  25.0,                            // Waist
-        500.0, 200.0, 50.0, 500.0, 300.0, 300.0,       // Left leg
-        500.0, 200.0, 50.0, 500.0, 300.0, 300.0,       // Right leg
-        50.0,  50.0,  30.0, 30.0,  5.0,   5.0,   5.0,  // Left arm
-        50.0,  50.0,  30.0, 30.0,  5.0,   5.0,   5.0,  // Right arm
-        2.0,   5.0                                     // Neck
-    };
-    static const std::array<float, 31> default_kd = {
-        0.8,  0.8, 0.8,                        // Waist
-        3.0,  0.5, 0.5,  3.0,  1.5, 1.5,       // Left leg
-        3.0,  0.5, 0.5,  3.0,  1.5, 1.5,       // Right leg
-        0.5,  0.5, 0.15, 0.15, 0.1, 0.1, 0.1,  // Left arm
-        0.5,  0.5, 0.15, 0.15, 0.1, 0.1, 0.1,  // Right arm
-        0.05, 0.1                              // Neck
-    };
 
     while (g_running) {
         if (g_lowlevel_active && g_first_state_received) {
@@ -330,8 +361,8 @@ void LowCmdPublishThread(Publisher<LowCmd> *publisher) {
                     motor_cmd.q(q_target);
                     motor_cmd.dq(0.0f);
                     motor_cmd.tau(0.0f);
-                    motor_cmd.kp(default_kp[i]);
-                    motor_cmd.kd(default_kd[i]);
+                    motor_cmd.kp(g_kp[i]);
+                    motor_cmd.kd(g_kd[i]);
                 }
             }
 
@@ -357,7 +388,7 @@ int main(int argc, char **argv) {
     signal(SIGTERM, SignalHandler);
 
     std::cout << "╔════════════════════════════════════════╗" << std::endl;
-    std::cout << "║  IGRIS-SDK Service API GUI Client     ║" << std::endl;
+    std::cout << "║         IGRIS-SDK Dev Tool            ║" << std::endl;
     std::cout << "╚════════════════════════════════════════╝\n" << std::endl;
 
     // Parse arguments
@@ -382,7 +413,7 @@ int main(int argc, char **argv) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create window
-    GLFWwindow *window = glfwCreateWindow(1800, 900, "IGRIS-SDK Service API Test GUI", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(1800, 900, "IGRIS-SDK Dev Tool", NULL, NULL);
     if (window == NULL) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -434,6 +465,16 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    // Auto-subscribe to ControlModeState
+    std::cout << "Subscribing to ControlModeState..." << std::endl;
+    g_controlmodestate_sub = std::make_unique<Subscriber<ControlModeState>>("rt/controlmodestate");
+    if (g_controlmodestate_sub->init(ControlModeStateCallback)) {
+        AddLog("ControlModeState subscription started");
+    } else {
+        AddLog("Failed to subscribe to ControlModeState");
+        g_controlmodestate_sub.reset();
+    }
+
     // Start LowCmd publishing thread
     std::thread publish_thread(LowCmdPublishThread, &lowcmd_pub);
 
@@ -453,12 +494,12 @@ int main(int argc, char **argv) {
         // Create main window
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(io.DisplaySize);
-        ImGui::Begin("IGRIS-SDK Service API Test", nullptr,
+        ImGui::Begin("IGRIS-SDK Dev Tool", nullptr,
                      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
                          ImGuiWindowFlags_NoBringToFrontOnFocus);
 
         // Left panel: Sliders
-        ImGui::BeginChild("LeftPanel", ImVec2(650, 0), true);
+        ImGui::BeginChild("LeftPanel", ImVec2(720, 0), true);
         {
             ImGui::Text("Motor/Joint State Sliders");
             ImGui::Separator();
@@ -488,19 +529,45 @@ int main(int argc, char **argv) {
             }
             ImGui::Separator();
 
-            // Reset button (always visible but only works in LOW_LEVEL mode)
-            if (ImGui::Button("Reset to Initial", ImVec2(-1, 30))) {
-                if (g_lowlevel_active && g_first_state_received) {
+            // Reset and Home buttons (side by side)
+            float button_width = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) * 0.5f;
+            if (ImGui::Button("Reset to Zero", ImVec2(button_width, 30))) {
+                if (g_lowlevel_active) {
                     std::lock_guard<std::mutex> lock_target(g_target_mutex);
                     for (int i = 0; i < 31; i++) {
-                        g_target_motor_pos[i] = g_initial_motor_pos[i];
-                        g_target_joint_pos[i] = g_initial_joint_pos[i];
+                        g_target_motor_pos[i] = 0.0f;
+                        g_target_joint_pos[i] = 0.0f;
+                        g_slider_values[i] = 0.0f;
+                        g_kp[i] = DEFAULT_KP[i];
+                        g_kd[i] = DEFAULT_KD[i];
+                        g_kp_edit[i] = DEFAULT_KP[i];
+                        g_kd_edit[i] = DEFAULT_KD[i];
                     }
-                    AddLog("Target positions reset to initial values");
-                } else if (!g_lowlevel_active) {
-                    AddLog("Enable LOW_LEVEL mode first to use Reset");
+                    AddLog("All target positions and gains reset to defaults");
                 } else {
-                    AddLog("Waiting for initial state to be received");
+                    AddLog("Enable LOW_LEVEL mode first to use Reset");
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Home", ImVec2(button_width, 30))) {
+                if (g_lowlevel_active) {
+                    std::lock_guard<std::mutex> lock_target(g_target_mutex);
+                    // Reset all to zero first
+                    for (int i = 0; i < 31; i++) {
+                        g_target_motor_pos[i] = 0.0f;
+                        g_target_joint_pos[i] = 0.0f;
+                        g_slider_values[i] = 0.0f;
+                    }
+                    // Set Shoulder Roll L (16) to 0.4, Shoulder Roll R (23) to -0.4
+                    const int SHOULDER_ROLL_L = 16;
+                    const int SHOULDER_ROLL_R = 23;
+                    g_target_joint_pos[SHOULDER_ROLL_L] = 0.4f;
+                    g_target_joint_pos[SHOULDER_ROLL_R] = -0.4f;
+                    g_slider_values[SHOULDER_ROLL_L] = 0.4f;
+                    g_slider_values[SHOULDER_ROLL_R] = -0.4f;
+                    AddLog("Home position: Shoulder Roll L=0.4, R=-0.4");
+                } else {
+                    AddLog("Enable LOW_LEVEL mode first to use Home");
                 }
             }
             ImGui::Separator();
@@ -519,24 +586,131 @@ int main(int argc, char **argv) {
 
             // Show LOW_LEVEL mode status
             if (g_lowlevel_active) {
-                ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "LOW_LEVEL Mode - Sliders control target positions");
-                ImGui::Separator();
+                ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "LOW_LEVEL Mode - Arrow:0.001 Ctrl:0.01 Shift:0.1 | Ctrl+Click:Custom");
+            }
+
+            // Column headers (aligned with slider layout)
+            float content_width = ImGui::GetContentRegionAvail().x;
+            float kd_width = 50;
+            float kp_width = 60;
+            float spacing = ImGui::GetStyle().ItemSpacing.x;
+
+            ImGui::Text("Name");
+            ImGui::SameLine(190);
+            ImGui::Text("Position");
+            ImGui::SameLine(content_width - kd_width - spacing - kp_width);
+            ImGui::Text("  Kp");
+            ImGui::SameLine(content_width - kd_width);
+            ImGui::Text("  Kd");
+            ImGui::Separator();
+
+            const float FINE_STEP = 0.001f;  // Fine adjustment step for arrow keys
+            static int selected_joint = -1;  // Currently selected joint for fine control
+
+            // Handle Up/Down arrow keys for joint selection (outside loop to prevent multiple triggers)
+            if (g_lowlevel_active) {
+                if (ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
+                    if (selected_joint < 0) {
+                        selected_joint = 0;
+                    } else {
+                        selected_joint = (selected_joint > 0) ? selected_joint - 1 : 30;
+                    }
+                }
+                if (ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
+                    if (selected_joint < 0) {
+                        selected_joint = 0;
+                    } else {
+                        selected_joint = (selected_joint < 30) ? selected_joint + 1 : 0;
+                    }
+                }
             }
 
             for (int i = 0; i < 31; i++) {
                 char label[64];
+                char slider_label[64];
                 const char *name = (g_show_motor == 1) ? MOTOR_NAMES[i] : JOINT_NAMES[i];
-                snprintf(label, sizeof(label), "%d. %s", i, name);
+                snprintf(label, sizeof(label), "%2d. %s", i, name);
+                snprintf(slider_label, sizeof(slider_label), "##slider%d", i);
 
                 if (g_lowlevel_active) {
                     // LOW_LEVEL mode: Show editable target positions
                     std::lock_guard<std::mutex> lock_target(g_target_mutex);
+                    float *target_val;
+                    float pos_min, pos_max;
                     if (g_show_motor == 1) {
-                        ImGui::SliderFloat(label, &g_target_motor_pos[i], MOTOR_POS_MIN[i], MOTOR_POS_MAX[i], "%.3f rad",
-                                           ImGuiSliderFlags_AlwaysClamp);
+                        target_val = &g_target_motor_pos[i];
+                        pos_min = MOTOR_POS_MIN[i];
+                        pos_max = MOTOR_POS_MAX[i];
                     } else {
-                        ImGui::SliderFloat(label, &g_target_joint_pos[i], JOINT_POS_MIN[i], JOINT_POS_MAX[i], "%.3f rad",
-                                           ImGuiSliderFlags_AlwaysClamp);
+                        target_val = &g_target_joint_pos[i];
+                        pos_min = JOINT_POS_MIN[i];
+                        pos_max = JOINT_POS_MAX[i];
+                    }
+
+                    // Selectable name - click to select for fine control
+                    bool is_selected = (selected_joint == i);
+                    if (is_selected) {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));  // Green when selected
+                    }
+                    if (ImGui::Selectable(label, is_selected, 0, ImVec2(180, 0))) {
+                        selected_joint = (selected_joint == i) ? -1 : i;  // Toggle selection
+                    }
+                    if (is_selected) {
+                        ImGui::PopStyleColor();
+                        ImGui::SetScrollHereY(0.5f);  // Scroll to keep selected item visible
+                    }
+                    ImGui::SameLine();
+
+                    // Slider (fill remaining space minus kp/kd fields)
+                    float kp_kd_width = 60 + 50 + ImGui::GetStyle().ItemSpacing.x * 2;
+                    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - kp_kd_width);
+                    ImGui::SliderFloat(slider_label, &g_pos_edit[i], pos_min, pos_max, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+                    if (ImGui::IsItemDeactivatedAfterEdit()) {
+                        *target_val = g_pos_edit[i];
+                    } else if (!ImGui::IsItemActive()) {
+                        g_pos_edit[i] = *target_val;
+                    }
+
+                    // kp input (apply on enter or focus loss)
+                    ImGui::SameLine();
+                    char kp_label[32];
+                    snprintf(kp_label, sizeof(kp_label), "##kp%d", i);
+                    ImGui::SetNextItemWidth(60);
+                    ImGui::InputFloat(kp_label, &g_kp_edit[i], 0, 0, "%.1f");
+                    if (ImGui::IsItemDeactivatedAfterEdit()) {
+                        g_kp[i] = g_kp_edit[i];
+                    } else if (!ImGui::IsItemActive()) {
+                        g_kp_edit[i] = g_kp[i];
+                    }
+
+                    // kd input (apply on enter or focus loss)
+                    ImGui::SameLine();
+                    char kd_label[32];
+                    snprintf(kd_label, sizeof(kd_label), "##kd%d", i);
+                    ImGui::SetNextItemWidth(50);
+                    ImGui::InputFloat(kd_label, &g_kd_edit[i], 0, 0, "%.2f");
+                    if (ImGui::IsItemDeactivatedAfterEdit()) {
+                        g_kd[i] = g_kd_edit[i];
+                    } else if (!ImGui::IsItemActive()) {
+                        g_kd_edit[i] = g_kd[i];
+                    }
+
+                    // Arrow key fine adjustment when this joint is selected
+                    // Shift+Arrow: 0.1, Ctrl+Arrow: 0.01, Arrow: 0.001
+                    if (is_selected) {
+                        float step = FINE_STEP;  // 0.001 default
+                        if (ImGui::GetIO().KeyShift) {
+                            step = 0.1f;
+                        } else if (ImGui::GetIO().KeyCtrl) {
+                            step = 0.01f;
+                        }
+
+                        if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) {
+                            *target_val = std::max(pos_min, *target_val - step);
+                        }
+                        if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
+                            *target_val = std::min(pos_max, *target_val + step);
+                        }
                     }
                 } else {
                     // Display mode: Show current state (read-only)
@@ -551,7 +725,40 @@ int main(int argc, char **argv) {
                     // Use appropriate limits based on current mode
                     float pos_min = (g_show_motor == 1) ? MOTOR_POS_MIN[i] : JOINT_POS_MIN[i];
                     float pos_max = (g_show_motor == 1) ? MOTOR_POS_MAX[i] : JOINT_POS_MAX[i];
-                    ImGui::SliderFloat(label, &g_slider_values[i], pos_min, pos_max, "%.3f rad");
+
+                    // Match layout with LOW_LEVEL mode
+                    ImGui::SetNextItemWidth(180);
+                    ImGui::Text("%s", label);
+                    ImGui::SameLine(190);
+
+                    // Slider (fill remaining space minus kp/kd fields)
+                    float kp_kd_width = 60 + 50 + ImGui::GetStyle().ItemSpacing.x * 2;
+                    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - kp_kd_width);
+                    ImGui::SliderFloat(slider_label, &g_slider_values[i], pos_min, pos_max, "%.3f");
+
+                    // kp input (apply on enter or focus loss)
+                    ImGui::SameLine();
+                    char kp_label[32];
+                    snprintf(kp_label, sizeof(kp_label), "##kp%d", i);
+                    ImGui::SetNextItemWidth(60);
+                    ImGui::InputFloat(kp_label, &g_kp_edit[i], 0, 0, "%.1f");
+                    if (ImGui::IsItemDeactivatedAfterEdit()) {
+                        g_kp[i] = g_kp_edit[i];
+                    } else if (!ImGui::IsItemActive()) {
+                        g_kp_edit[i] = g_kp[i];
+                    }
+
+                    // kd input (apply on enter or focus loss)
+                    ImGui::SameLine();
+                    char kd_label[32];
+                    snprintf(kd_label, sizeof(kd_label), "##kd%d", i);
+                    ImGui::SetNextItemWidth(50);
+                    ImGui::InputFloat(kd_label, &g_kd_edit[i], 0, 0, "%.2f");
+                    if (ImGui::IsItemDeactivatedAfterEdit()) {
+                        g_kd[i] = g_kd_edit[i];
+                    } else if (!ImGui::IsItemActive()) {
+                        g_kd_edit[i] = g_kd[i];
+                    }
                 }
             }
             ImGui::EndChild();
@@ -563,6 +770,29 @@ int main(int argc, char **argv) {
         // Center panel: IMU State
         ImGui::BeginChild("CenterPanel", ImVec2(450, 0), true);
         {
+            // DDS Connection Status (top of center panel)
+            ImGui::Text("DDS Connection Status");
+            ImGui::Separator();
+
+            // Check connection timeout (2 seconds without message = disconnected)
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - g_last_controlmodestate_time).count();
+            bool is_connected = g_controlmodestate_connected && (elapsed < 2000);
+
+            if (is_connected) {
+                ImGui::TextColored(ImVec4(0, 1, 0, 1), "Status: Connected");
+                {
+                    std::lock_guard<std::mutex> lock(g_controlmodestate_mutex);
+                    ImGui::Text("Control Mode: %s", ControlModeToString(g_latest_controlmodestate.mode()));
+                }
+            } else {
+                ImGui::TextColored(ImVec4(1, 0, 0, 1), "Status: Disconnected");
+                ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1), "Control Mode: --");
+            }
+
+            ImGui::Separator();
+            ImGui::Separator();
+
             ImGui::Text("IMU State");
             ImGui::Separator();
 
@@ -613,17 +843,42 @@ int main(int argc, char **argv) {
                 ImGui::Text("Published: %u msgs", g_lowcmd_publish_count.load());
                 ImGui::Separator();
 
-                // Show all 31 joint commands in scrollable area
-                std::lock_guard<std::mutex> lock(g_last_cmd_mutex);
+                // Tab bar for LowCmd and Cmd vs State comparison
+                if (ImGui::BeginTabBar("CmdStateTabBar")) {
+                    // Tab 1: LowCmd only
+                    if (ImGui::BeginTabItem("LowCmd")) {
+                        std::lock_guard<std::mutex> lock(g_last_cmd_mutex);
+                        ImGui::BeginChild("CmdScroll", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+                        for (int i = 0; i < 31; i++) {
+                            const auto &cmd = g_last_published_cmd.motors()[i];
+                            ImGui::Text("J%2d: q=%7.3f  tau=%6.2f  kp=%5.1f  kd=%4.2f", i, cmd.q(), cmd.tau(), cmd.kp(), cmd.kd());
+                        }
+                        ImGui::EndChild();
+                        ImGui::EndTabItem();
+                    }
 
-                ImGui::BeginChild("CmdScroll", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+                    // Tab 2: Cmd vs State comparison
+                    if (ImGui::BeginTabItem("Cmd vs State")) {
+                        std::lock_guard<std::mutex> lock_cmd(g_last_cmd_mutex);
+                        std::lock_guard<std::mutex> lock_state(g_lowstate_mutex);
+                        ImGui::BeginChild("CmdStateScroll", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+                        for (int i = 0; i < 31; i++) {
+                            float cmd_q = g_last_published_cmd.motors()[i].q();
+                            float state_q = g_latest_lowstate.joint_state()[i].q();
+                            float diff = cmd_q - state_q;
+                            // Color red if difference > 0.05 rad
+                            if (std::abs(diff) > 0.05f) {
+                                ImGui::TextColored(ImVec4(1, 0.3f, 0.3f, 1), "J%2d: cmd=%7.3f : state=%7.3f  (diff=%+.3f)", i, cmd_q, state_q, diff);
+                            } else {
+                                ImGui::Text("J%2d: cmd=%7.3f : state=%7.3f  (diff=%+.3f)", i, cmd_q, state_q, diff);
+                            }
+                        }
+                        ImGui::EndChild();
+                        ImGui::EndTabItem();
+                    }
 
-                for (int i = 0; i < 31; i++) {
-                    const auto &cmd = g_last_published_cmd.motors()[i];
-                    ImGui::Text("J%2d: q=%7.3f  tau=%6.2f  kp=%5.1f  kd=%4.2f", i, cmd.q(), cmd.tau(), cmd.kp(), cmd.kd());
+                    ImGui::EndTabBar();
                 }
-
-                ImGui::EndChild();
             } else {
                 ImGui::TextColored(ImVec4(1, 0, 0, 1), "Status: INACTIVE");
                 ImGui::Text("Enable LOW_LEVEL mode to start");
@@ -668,43 +923,33 @@ int main(int argc, char **argv) {
                 CallSetControlModeAsync(&client, ControlMode::CONTROL_MODE_LOW_LEVEL, "LOW_LEVEL");
             }
 
-            if (ImGui::Button("8. Control Mode: HIGH_LEVEL", ImVec2(-1, 40))) {
-                CallSetControlModeAsync(&client, ControlMode::CONTROL_MODE_HIGH_LEVEL, "HIGH_LEVEL");
-            }
-
-            ImGui::Separator();
-
-            // ControlModeState subscription button
-            if (!g_controlmodestate_subscribed) {
-                if (ImGui::Button("9. Subscribe ControlModeState", ImVec2(-1, 40))) {
-                    g_controlmodestate_sub = std::make_unique<Subscriber<ControlModeState>>("rt/controlmodestate");
-                    if (g_controlmodestate_sub->init(ControlModeStateCallback)) {
-                        g_controlmodestate_subscribed = true;
-                        AddLog("ControlModeState subscription started");
-                    } else {
-                        AddLog("Failed to subscribe to ControlModeState");
-                        g_controlmodestate_sub.reset();
-                    }
-                }
-            } else {
-                if (ImGui::Button("9. Unsubscribe ControlModeState", ImVec2(-1, 40))) {
-                    g_controlmodestate_sub.reset();
-                    g_controlmodestate_subscribed = false;
-                    g_controlmodestate_received_count = 0;
-                    AddLog("ControlModeState subscription stopped");
-                }
-            }
-
-            // Display ControlModeState if subscribed
-            if (g_controlmodestate_subscribed) {
-                ImGui::Separator();
-                ImGui::TextColored(ImVec4(0.5f, 1.0f, 0.5f, 1.0f), "ControlModeState:");
-                ImGui::Text("  Received: %u msgs", g_controlmodestate_received_count.load());
+            // LowCmd Publish Start/Stop buttons (only enabled in LOW_LEVEL mode)
+            {
+                bool is_lowlevel_mode = false;
                 {
                     std::lock_guard<std::mutex> lock(g_controlmodestate_mutex);
-                    ImGui::Text("  Tick: %u", g_latest_controlmodestate.tick());
-                    ImGui::Text("  Mode: %s", ControlModeToString(g_latest_controlmodestate.mode()));
+                    is_lowlevel_mode = (g_latest_controlmodestate.mode() == ControlMode::CONTROL_MODE_LOW_LEVEL);
                 }
+
+                if (!g_lowlevel_active) {
+                    if (!is_lowlevel_mode) {
+                        ImGui::BeginDisabled();
+                    }
+                    if (ImGui::Button("   LowCmd Publish Start", ImVec2(-1, 40))) {
+                        StartLowCmdPublishing();
+                    }
+                    if (!is_lowlevel_mode) {
+                        ImGui::EndDisabled();
+                    }
+                } else {
+                    if (ImGui::Button("   LowCmd Publish Stop", ImVec2(-1, 40))) {
+                        StopLowCmdPublishing();
+                    }
+                }
+            }
+
+            if (ImGui::Button("8. Control Mode: HIGH_LEVEL", ImVec2(-1, 40))) {
+                CallSetControlModeAsync(&client, ControlMode::CONTROL_MODE_HIGH_LEVEL, "HIGH_LEVEL");
             }
 
             ImGui::Separator();
