@@ -15,6 +15,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <csignal>
 #include <deque>
 #include <future>
@@ -122,9 +123,14 @@ static std::array<float, 31> g_slider_values = {};
 static std::atomic<bool> g_lowlevel_active(false);
 static std::array<float, 31> g_target_joint_pos  = {};  // Target joint positions for LOW_LEVEL mode
 static std::array<float, 31> g_target_motor_pos  = {};  // Target motor positions for LOW_LEVEL mode
+static std::array<float, 31> g_cmd_joint_pos     = {};  // Command joint positions (gradually converging)
+static std::array<float, 31> g_cmd_motor_pos     = {};  // Command motor positions (gradually converging)
 static std::array<float, 31> g_current_joint_pos = {};  // Current actual joint positions
 static std::array<float, 31> g_current_motor_pos = {};  // Current actual motor positions
 static std::mutex g_target_mutex;
+static float g_convergence_time = 1.5f;  // Convergence time in seconds (0=instant, 1.5=default, 3=slow)
+static const float RESET_DURATION = 5.0f;  // Fixed duration for Reset/Home buttons
+static std::atomic<bool> g_reset_mode_active(false);  // Use fixed duration for Reset/Home
 static std::atomic<uint32_t> g_lowcmd_publish_count(0);
 static LowCmd g_last_published_cmd;
 static std::mutex g_last_cmd_mutex;
@@ -160,6 +166,13 @@ static std::array<float, 31> g_kp_edit = DEFAULT_KP;
 static std::array<float, 31> g_kd_edit = DEFAULT_KD;
 // Temporary edit buffers for position (applied on enter or focus loss)
 static std::array<float, 31> g_pos_edit = {};
+
+// Kp/Kd confirmation popup state
+static bool g_show_gain_confirm_popup = false;
+static int g_pending_gain_joint = -1;      // Joint index for pending change
+static bool g_pending_is_kp = true;        // true = kp, false = kd
+static float g_pending_old_value = 0.0f;
+static float g_pending_new_value = 0.0f;
 
 void SignalHandler(int) { g_running = false; }
 
@@ -299,13 +312,15 @@ void StartLowCmdPublishing() {
         AddLog("LowCmd publishing already active");
         return;
     }
-    // Initialize target positions to current positions
+    // Initialize target and command positions to current positions
     {
         std::lock_guard<std::mutex> lock_state(g_lowstate_mutex);
         std::lock_guard<std::mutex> lock_target(g_target_mutex);
         for (int i = 0; i < 31; i++) {
             g_target_joint_pos[i] = g_latest_lowstate.joint_state()[i].q();
             g_target_motor_pos[i] = g_latest_lowstate.motor_state()[i].q();
+            g_cmd_joint_pos[i]    = g_latest_lowstate.joint_state()[i].q();
+            g_cmd_motor_pos[i]    = g_latest_lowstate.motor_state()[i].q();
         }
     }
     g_lowlevel_active = true;
@@ -341,28 +356,49 @@ void LowCmdPublishThread(Publisher<LowCmd> *publisher) {
                 // Set kinematic mode at LowCmd level (전체 적용)
                 cmd.kinematic_mode(use_joint_mode ? KinematicMode::PJS : KinematicMode::MS);
 
+                // Calculate alpha for exponential smoothing based on convergence time
+                // At 300Hz, to reach 95% in T seconds: alpha = 1 - 0.05^(1/(T*300))
+                // T=0 -> instant (alpha=1), T=1.5 -> ~0.01, T=3 -> ~0.005
+                // Use RESET_DURATION (5s) for Reset/Home, otherwise use slider value
+                float duration = g_reset_mode_active.load() ? RESET_DURATION : g_convergence_time;
+                float alpha;
+                const float min_delta = 0.0001f;  // Minimum delta for target reached
+                if (duration <= 0.01f) {
+                    alpha = 1.0f;  // Instant
+                } else {
+                    alpha = 1.0f - std::pow(0.05f, 1.0f / (duration * 300.0f));
+                }
+
+                bool all_reached = true;
                 for (int i = 0; i < 31; i++) {
                     auto &motor_cmd = cmd.motors()[i];
 
                     // Set motor ID
                     motor_cmd.id(i);
 
-                    float q_target;
+                    float &q_cmd_ref = use_joint_mode ? g_cmd_joint_pos[i] : g_cmd_motor_pos[i];
+                    float q_target   = use_joint_mode ? g_target_joint_pos[i] : g_target_motor_pos[i];
 
-                    if (use_joint_mode) {
-                        // Joint Space (PJS) mode
-                        q_target = g_target_joint_pos[i];
+                    // Apply exponential smoothing (비율 기반 보간)
+                    float delta = q_target - q_cmd_ref;
+                    if (std::abs(delta) > min_delta) {
+                        q_cmd_ref += delta * alpha;
+                        all_reached = false;
                     } else {
-                        // Motor Space (MS) mode
-                        q_target = g_target_motor_pos[i];
+                        q_cmd_ref = q_target;  // Target reached
                     }
 
                     // Set commands
-                    motor_cmd.q(q_target);
+                    motor_cmd.q(q_cmd_ref);
                     motor_cmd.dq(0.0f);
                     motor_cmd.tau(0.0f);
                     motor_cmd.kp(g_kp[i]);
                     motor_cmd.kd(g_kd[i]);
+                }
+
+                // Deactivate reset mode when all joints reached target
+                if (all_reached && g_reset_mode_active.load()) {
+                    g_reset_mode_active = false;
                 }
             }
 
@@ -509,53 +545,64 @@ int main(int argc, char **argv) {
             ImGui::SameLine();
             ImGui::RadioButton("Joint State", &g_show_motor, 0);
 
-            // Detect mode change and update target positions to current state
+            // Detect mode change and update target/cmd positions to current state
             if (g_show_motor != g_prev_show_motor && g_lowlevel_active) {
                 std::lock_guard<std::mutex> lock_target(g_target_mutex);
                 if (g_show_motor == 1) {
-                    // Switched to Motor mode: set motor targets to current motor positions
+                    // Switched to Motor mode: set motor targets and cmd to current motor positions
                     for (int i = 0; i < 31; i++) {
                         g_target_motor_pos[i] = g_current_motor_pos[i];
+                        g_cmd_motor_pos[i]    = g_current_motor_pos[i];
                     }
-                    AddLog("Switched to Motor mode - targets set to current motor positions");
+                    AddLog("Switched to Motor mode - synchronized to current motor positions");
                 } else {
-                    // Switched to Joint mode: set joint targets to current joint positions
+                    // Switched to Joint mode: set joint targets and cmd to current joint positions
                     for (int i = 0; i < 31; i++) {
                         g_target_joint_pos[i] = g_current_joint_pos[i];
+                        g_cmd_joint_pos[i]    = g_current_joint_pos[i];
                     }
-                    AddLog("Switched to Joint mode - targets set to current joint positions");
+                    AddLog("Switched to Joint mode - synchronized to current joint positions");
                 }
                 g_prev_show_motor = g_show_motor;
             }
             ImGui::Separator();
 
-            // Reset and Home buttons (side by side)
-            float button_width = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x) * 0.5f;
-            if (ImGui::Button("Reset to Zero", ImVec2(button_width, 30))) {
+            // Reset, Reset Gains, and Home buttons (3 buttons side by side)
+            float button_width = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x * 2) / 3.0f;
+            if (ImGui::Button("Reset Pos", ImVec2(button_width, 30))) {
                 if (g_lowlevel_active) {
                     std::lock_guard<std::mutex> lock_target(g_target_mutex);
                     for (int i = 0; i < 31; i++) {
                         g_target_motor_pos[i] = 0.0f;
                         g_target_joint_pos[i] = 0.0f;
+                        // Don't reset cmd - let it converge gradually
                         g_slider_values[i] = 0.0f;
-                        g_kp[i] = DEFAULT_KP[i];
-                        g_kd[i] = DEFAULT_KD[i];
-                        g_kp_edit[i] = DEFAULT_KP[i];
-                        g_kd_edit[i] = DEFAULT_KD[i];
                     }
-                    AddLog("All target positions and gains reset to defaults");
+                    g_reset_mode_active = true;  // Use 5s duration
+                    AddLog("All target positions reset to zero (5s transition)");
                 } else {
                     AddLog("Enable LOW_LEVEL mode first to use Reset");
                 }
             }
             ImGui::SameLine();
+            if (ImGui::Button("Reset Gains", ImVec2(button_width, 30))) {
+                for (int i = 0; i < 31; i++) {
+                    g_kp[i] = DEFAULT_KP[i];
+                    g_kd[i] = DEFAULT_KD[i];
+                    g_kp_edit[i] = DEFAULT_KP[i];
+                    g_kd_edit[i] = DEFAULT_KD[i];
+                }
+                AddLog("All Kp/Kd gains reset to defaults");
+            }
+            ImGui::SameLine();
             if (ImGui::Button("Home", ImVec2(button_width, 30))) {
                 if (g_lowlevel_active) {
                     std::lock_guard<std::mutex> lock_target(g_target_mutex);
-                    // Reset all to zero first
+                    // Set all targets to zero first (cmd will converge gradually)
                     for (int i = 0; i < 31; i++) {
                         g_target_motor_pos[i] = 0.0f;
                         g_target_joint_pos[i] = 0.0f;
+                        // Don't reset cmd - let it converge gradually
                         g_slider_values[i] = 0.0f;
                     }
                     // Set Shoulder Roll L (16) to 0.4, Shoulder Roll R (23) to -0.4
@@ -563,17 +610,25 @@ int main(int argc, char **argv) {
                     const int SHOULDER_ROLL_R = 23;
                     g_target_joint_pos[SHOULDER_ROLL_L] = 0.4f;
                     g_target_joint_pos[SHOULDER_ROLL_R] = -0.4f;
+                    g_target_motor_pos[SHOULDER_ROLL_L] = 0.4f;   // Also set motor pos
+                    g_target_motor_pos[SHOULDER_ROLL_R] = -0.4f;  // Also set motor pos
                     g_slider_values[SHOULDER_ROLL_L] = 0.4f;
                     g_slider_values[SHOULDER_ROLL_R] = -0.4f;
-                    AddLog("Home position: Shoulder Roll L=0.4, R=-0.4");
+                    g_reset_mode_active = true;  // Use 5s duration
+                    AddLog("Home position (5s transition)");
                 } else {
                     AddLog("Enable LOW_LEVEL mode first to use Home");
                 }
             }
             ImGui::Separator();
 
-            // Status
-            ImGui::Text("LowState messages received: %u", g_lowstate_received_count.load());
+            // Status and Convergence Time slider on same line
+            ImGui::Text("LowState: %u", g_lowstate_received_count.load());
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 130);
+            ImGui::SliderFloat("##convergence", &g_convergence_time, 0.0f, 3.0f, "");
+            ImGui::SameLine();
+            ImGui::Text("Duration: %.1fs", g_convergence_time);
             if (!g_first_state_received) {
                 ImGui::TextColored(ImVec4(1, 1, 0, 1), "Waiting for first state...");
             } else {
@@ -661,36 +716,42 @@ int main(int argc, char **argv) {
                     }
                     ImGui::SameLine();
 
-                    // Slider (fill remaining space minus kp/kd fields)
+                    // Slider (fill remaining space minus kp/kd fields) - immediate apply while dragging
                     float kp_kd_width = 60 + 50 + ImGui::GetStyle().ItemSpacing.x * 2;
                     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - kp_kd_width);
-                    ImGui::SliderFloat(slider_label, &g_pos_edit[i], pos_min, pos_max, "%.3f", ImGuiSliderFlags_AlwaysClamp);
-                    if (ImGui::IsItemDeactivatedAfterEdit()) {
-                        *target_val = g_pos_edit[i];
-                    } else if (!ImGui::IsItemActive()) {
-                        g_pos_edit[i] = *target_val;
+                    if (ImGui::SliderFloat(slider_label, target_val, pos_min, pos_max, "%.3f", ImGuiSliderFlags_AlwaysClamp)) {
+                        // Slider value changed - use normal duration instead of reset duration
+                        g_reset_mode_active = false;
                     }
 
-                    // kp input (apply on enter or focus loss)
+                    // kp input (with confirmation popup)
                     ImGui::SameLine();
                     char kp_label[32];
                     snprintf(kp_label, sizeof(kp_label), "##kp%d", i);
                     ImGui::SetNextItemWidth(60);
                     ImGui::InputFloat(kp_label, &g_kp_edit[i], 0, 0, "%.1f");
-                    if (ImGui::IsItemDeactivatedAfterEdit()) {
-                        g_kp[i] = g_kp_edit[i];
+                    if (ImGui::IsItemDeactivatedAfterEdit() && g_kp_edit[i] != g_kp[i]) {
+                        g_pending_gain_joint = i;
+                        g_pending_is_kp = true;
+                        g_pending_old_value = g_kp[i];
+                        g_pending_new_value = g_kp_edit[i];
+                        g_show_gain_confirm_popup = true;
                     } else if (!ImGui::IsItemActive()) {
                         g_kp_edit[i] = g_kp[i];
                     }
 
-                    // kd input (apply on enter or focus loss)
+                    // kd input (with confirmation popup)
                     ImGui::SameLine();
                     char kd_label[32];
                     snprintf(kd_label, sizeof(kd_label), "##kd%d", i);
                     ImGui::SetNextItemWidth(50);
                     ImGui::InputFloat(kd_label, &g_kd_edit[i], 0, 0, "%.2f");
-                    if (ImGui::IsItemDeactivatedAfterEdit()) {
-                        g_kd[i] = g_kd_edit[i];
+                    if (ImGui::IsItemDeactivatedAfterEdit() && g_kd_edit[i] != g_kd[i]) {
+                        g_pending_gain_joint = i;
+                        g_pending_is_kp = false;
+                        g_pending_old_value = g_kd[i];
+                        g_pending_new_value = g_kd_edit[i];
+                        g_show_gain_confirm_popup = true;
                     } else if (!ImGui::IsItemActive()) {
                         g_kd_edit[i] = g_kd[i];
                     }
@@ -707,9 +768,11 @@ int main(int argc, char **argv) {
 
                         if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) {
                             *target_val = std::max(pos_min, *target_val - step);
+                            g_reset_mode_active = false;  // Use normal duration
                         }
                         if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
                             *target_val = std::min(pos_max, *target_val + step);
+                            g_reset_mode_active = false;  // Use normal duration
                         }
                     }
                 } else {
@@ -736,26 +799,34 @@ int main(int argc, char **argv) {
                     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - kp_kd_width);
                     ImGui::SliderFloat(slider_label, &g_slider_values[i], pos_min, pos_max, "%.3f");
 
-                    // kp input (apply on enter or focus loss)
+                    // kp input (with confirmation popup)
                     ImGui::SameLine();
                     char kp_label[32];
                     snprintf(kp_label, sizeof(kp_label), "##kp%d", i);
                     ImGui::SetNextItemWidth(60);
                     ImGui::InputFloat(kp_label, &g_kp_edit[i], 0, 0, "%.1f");
-                    if (ImGui::IsItemDeactivatedAfterEdit()) {
-                        g_kp[i] = g_kp_edit[i];
+                    if (ImGui::IsItemDeactivatedAfterEdit() && g_kp_edit[i] != g_kp[i]) {
+                        g_pending_gain_joint = i;
+                        g_pending_is_kp = true;
+                        g_pending_old_value = g_kp[i];
+                        g_pending_new_value = g_kp_edit[i];
+                        g_show_gain_confirm_popup = true;
                     } else if (!ImGui::IsItemActive()) {
                         g_kp_edit[i] = g_kp[i];
                     }
 
-                    // kd input (apply on enter or focus loss)
+                    // kd input (with confirmation popup)
                     ImGui::SameLine();
                     char kd_label[32];
                     snprintf(kd_label, sizeof(kd_label), "##kd%d", i);
                     ImGui::SetNextItemWidth(50);
                     ImGui::InputFloat(kd_label, &g_kd_edit[i], 0, 0, "%.2f");
-                    if (ImGui::IsItemDeactivatedAfterEdit()) {
-                        g_kd[i] = g_kd_edit[i];
+                    if (ImGui::IsItemDeactivatedAfterEdit() && g_kd_edit[i] != g_kd[i]) {
+                        g_pending_gain_joint = i;
+                        g_pending_is_kp = false;
+                        g_pending_old_value = g_kd[i];
+                        g_pending_new_value = g_kd_edit[i];
+                        g_show_gain_confirm_popup = true;
                     } else if (!ImGui::IsItemActive()) {
                         g_kd_edit[i] = g_kd[i];
                     }
@@ -881,7 +952,7 @@ int main(int argc, char **argv) {
                 }
             } else {
                 ImGui::TextColored(ImVec4(1, 0, 0, 1), "Status: INACTIVE");
-                ImGui::Text("Enable LOW_LEVEL mode to start");
+                ImGui::Text("Press LowCmd Publish Start to begin");
             }
         }
         ImGui::EndChild();
@@ -971,6 +1042,49 @@ int main(int argc, char **argv) {
             ImGui::EndChild();
         }
         ImGui::EndChild();
+
+        // Kp/Kd change confirmation popup
+        if (g_show_gain_confirm_popup) {
+            ImGui::OpenPopup("Confirm Gain Change");
+            g_show_gain_confirm_popup = false;
+        }
+
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        if (ImGui::BeginPopupModal("Confirm Gain Change", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            const char *gain_name = g_pending_is_kp ? "Kp" : "Kd";
+            const char *joint_name = (g_show_motor == 1) ? MOTOR_NAMES[g_pending_gain_joint] : JOINT_NAMES[g_pending_gain_joint];
+
+            ImGui::Text("Change %s gain for Joint %d (%s)?", gain_name, g_pending_gain_joint, joint_name);
+            ImGui::Separator();
+            ImGui::Text("Current: %.2f", g_pending_old_value);
+            ImGui::Text("New:     %.2f", g_pending_new_value);
+            ImGui::Separator();
+
+            if (ImGui::Button("Apply", ImVec2(120, 0))) {
+                if (g_pending_is_kp) {
+                    g_kp[g_pending_gain_joint] = g_pending_new_value;
+                    g_kp_edit[g_pending_gain_joint] = g_pending_new_value;
+                } else {
+                    g_kd[g_pending_gain_joint] = g_pending_new_value;
+                    g_kd_edit[g_pending_gain_joint] = g_pending_new_value;
+                }
+                AddLog("Gain changed: Joint " + std::to_string(g_pending_gain_joint) + " " +
+                       gain_name + " = " + std::to_string(g_pending_new_value));
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+                // Revert edit buffer
+                if (g_pending_is_kp) {
+                    g_kp_edit[g_pending_gain_joint] = g_pending_old_value;
+                } else {
+                    g_kd_edit[g_pending_gain_joint] = g_pending_old_value;
+                }
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
 
         ImGui::End();
 
