@@ -994,6 +994,41 @@ int main(int argc, char **argv) {
                 CallSetControlModeAsync(&client, ControlMode::CONTROL_MODE_LOW_LEVEL, "LOW_LEVEL");
             }
 
+            // LowLevel + Start button: Switch to LOW_LEVEL mode and start LowCmd publishing
+            if (ImGui::Button("   LowLevel + Start", ImVec2(-1, 40))) {
+                if (g_service_call_in_progress.load()) {
+                    AddLog("Service call already in progress, please wait...");
+                } else if (!g_first_state_received) {
+                    AddLog("Waiting for first state - cannot start yet");
+                } else {
+                    g_service_call_in_progress = true;
+                    AddLog("Calling SetControlMode(LOW_LEVEL) + StartLowCmd...");
+
+                    std::thread([&client]() {
+                        auto res = client.SetControlMode(ControlMode::CONTROL_MODE_LOW_LEVEL, 30000);
+                        if (res.success()) {
+                            AddLog("SetControlMode(LOW_LEVEL): SUCCESS - " + std::string(res.message()));
+                            // Initialize target and command positions to current positions
+                            {
+                                std::lock_guard<std::mutex> lock_state(g_lowstate_mutex);
+                                std::lock_guard<std::mutex> lock_target(g_target_mutex);
+                                for (int i = 0; i < 31; i++) {
+                                    g_target_joint_pos[i] = g_latest_lowstate.joint_state()[i].q();
+                                    g_target_motor_pos[i] = g_latest_lowstate.motor_state()[i].q();
+                                    g_cmd_joint_pos[i]    = g_latest_lowstate.joint_state()[i].q();
+                                    g_cmd_motor_pos[i]    = g_latest_lowstate.motor_state()[i].q();
+                                }
+                            }
+                            g_lowlevel_active = true;
+                            AddLog("LowCmd publishing started - initialized to current positions");
+                        } else {
+                            AddLog("SetControlMode(LOW_LEVEL): FAILED - " + std::string(res.message()));
+                        }
+                        g_service_call_in_progress = false;
+                    }).detach();
+                }
+            }
+
             // LowCmd Publish Start/Stop buttons (only enabled in LOW_LEVEL mode)
             {
                 bool is_lowlevel_mode = false;
