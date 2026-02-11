@@ -15,6 +15,9 @@ template <typename MessageType> class Publisher {
     // Note: ChannelFactory must be initialized before calling this
     bool init();
 
+    // Stop publisher and release DDS resources
+    void stop();
+
     // Publish a message
     bool write(const MessageType &msg);
 
