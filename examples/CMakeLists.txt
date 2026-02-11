@@ -6,9 +6,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_link_options("-Wl,--no-as-needed")
 
 # Find the installed IGRIS SDK
-# This CMakeLists.txt is designed to be used in the deployed SDK
-# Assumes this file is in igris-sdk-deploy/examples/
-set(igris_sdk_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../lib/cmake/igris_sdk")
+# Auto-detect: deployed SDK (../lib/) or development environment (colcon)
+if(NOT igris_sdk_DIR)
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../lib/cmake/igris_sdk/igris_sdk-config.cmake")
+    # Deployed SDK structure (igris_c_sdk_public/examples/)
+    set(igris_sdk_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../lib/cmake/igris_sdk")
+  elseif(DEFINED ENV{COLCON_PREFIX_PATH})
+    # Colcon workspace - use install directory
+    set(igris_sdk_DIR "$ENV{COLCON_PREFIX_PATH}/igris_sdk/lib/cmake/igris_sdk")
+  elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../../install/igris_sdk/lib/cmake/igris_sdk/igris_sdk-config.cmake")
+    # Development environment: colcon workspace (ros2_ws/src/igris_c_sdk/examples/)
+    set(igris_sdk_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../install/igris_sdk/lib/cmake/igris_sdk")
+  endif()
+endif()
 find_package(igris_sdk REQUIRED)
 find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 
@@ -67,7 +77,18 @@ set_target_properties(
   service_example PROPERTIES INSTALL_RPATH "$ORIGIN/../lib" BUILD_RPATH_USE_ORIGIN ON
 )
 
+# Hand GUI Client (hand control example)
+add_executable(hand_gui_client hand_gui_client.cpp)
+target_link_libraries(
+  hand_gui_client igris_sdk::igris_sdk imgui OpenGL::GL glfw
+)
+
+set_target_properties(
+  hand_gui_client PROPERTIES INSTALL_RPATH "$ORIGIN/../lib" BUILD_RPATH_USE_ORIGIN ON
+)
+
 message(STATUS "Examples configured:")
 message(STATUS "  - sdk_gui_client: Full-featured GUI client example")
 message(STATUS "  - lowlevel_example: Pub/Sub low-level control example")
 message(STATUS "  - service_example: Service API example")
+message(STATUS "  - hand_gui_client: Hand control GUI client example")
