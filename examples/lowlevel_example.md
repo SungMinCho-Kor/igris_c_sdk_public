@@ -1,107 +1,108 @@
 # Low-Level Control Example
 
-LowState 구독과 LowCmd 발행을 통한 저수준 제어 예제입니다.
+Pub/sub example that subscribes to `LowState` and publishes `LowCmd` for direct robot control.
 
 ---
 
-## 개요
+## Overview
 
-이 예제는 IGRIS SDK의 Pub/Sub 패턴을 사용하여 로봇을 제어하는 방법을 보여줍니다.
+This example demonstrates the IGRIS SDK DDS workflow for low-level motion control.
 
-### 시연 기능
+### Covered features
 
-- **Subscriber**: `rt/lowstate` 토픽에서 로봇 상태 수신
-- **Publisher**: `rt/lowcmd` 토픽으로 모터 명령 발행 (300Hz)
-- **Motion**: Neck pitch 조인트에 sine wave 모션 적용 (끄덕끄덕)
+- **Subscriber**: receive robot state from `rt/lowstate`
+- **Publisher**: send motor commands to `rt/lowcmd` at 300 Hz
+- **Motion demo**: apply a sine-wave nodding motion to the neck pitch joint while holding the other joints at their initial positions
 
 ---
 
-## 사전 조건
+## Prerequisites
 
-이 예제는 Pub/Sub API 사용법을 보여주는 것으로, 실행 전 다음이 필요합니다:
+Before running this example, prepare the robot with either `service_example` or `sdk_gui_client`:
+
+1. Initialize BMS and motors
+    ```bash
+    ./service_example init_all
+    ```
+2. Enable torque
+    ```bash
+    ./service_example torque_on
+    ```
+3. Switch the robot to `LOW_LEVEL` mode
+    ```bash
+    ./service_example mode_lowlevel
+    ```
+This example assumes the robot is already ready to accept `LowCmd` messages.
+Require to `sdk_gui_client` for the entire operating flow.
+
+---
+
+## Run
 
 ```bash
-# 1. BMS 및 모터 초기화
-./service_example init_all
-
-# 2. 토크 활성화
-./service_example torque_on
-
-# 3. LOW_LEVEL 모드 전환
-./service_example mode_lowlevel
-```
-
-전체 동작 플로우는 `sdk_gui_client` 예제를 참고하세요.
-
----
-
-## 실행 방법
-
-```bash
-# 기본 실행 (domain_id = 0)
+# Default run (domain_id = 0)
 ./lowlevel_example
 
-# domain_id 지정
+# Run with an explicit domain ID
 ./lowlevel_example 1
 ```
 
-> **Note**: Domain ID는 robot의 channel과 동일해야 합니다(robot sdk domain : 0). 기본값은 0입니다.
+> **Note**: The domain ID must match the robot channel configuration. The default is `0`.
 
 ---
 
-## 코드 구조
+## Code Structure
 
-### 1. SDK 초기화
+### 1. SDK initialization
 
 ```cpp
 #include <igris_sdk/channel_factory.hpp>
-#include <igris_sdk/subscriber.hpp>
 #include <igris_sdk/publisher.hpp>
+#include <igris_sdk/subscriber.hpp>
 
-// 초기화
+// initialize
 ChannelFactory::Instance()->Init(domain_id);
 ```
 
-### 2. Subscriber 생성
+### 2. Create the subscriber
 
 ```cpp
 Subscriber<LowState> state_sub("rt/lowstate");
 state_sub.init(LowStateCallback);
 
 void LowStateCallback(const LowState &state) {
-  // 로봇 상태 처리
-  for (int i = 0; i < NUM_MOTORS; i++) {
-    float pos = state.joint_state()[i].q();
-    float vel = state.joint_state()[i].dq();
-  }
-
-  // IMU 데이터
-  auto& imu = state.imu_state();
-  // imu.rpy(), imu.gyroscope(), imu.accelerometer()
+    // handle robot state
+    for (int i = 0; i < NUM_MOTORS; i++) {
+        float pos = state.joint_state()[i].q();
+        float vel = state.joint_state()[i].dq();
+    }
+    // IMU data 
+    auto &imu = state.imu_state();
+    // imu.rpy(), imu.gyroscope(), imu.accelerometer()
 }
 ```
 
-### 3. Publisher 생성
+### 3. Create the publisher
 
 ```cpp
 Publisher<LowCmd> cmd_pub("rt/lowcmd");
 cmd_pub.init();
 ```
 
-### 4. 제어 명령 발행
+### 4. Publish control commands
 
 ```cpp
 LowCmd cmd;
-cmd.kinematic_mode(KinematicMode::PJS);  // Joint Space (전체 적용)
+cmd.kinematic_mode(KinematicMode::PJS); // Joint Space
 
 for (int i = 0; i < NUM_MOTORS; i++) {
-  auto& motor_cmd = cmd.motors()[i];
-  motor_cmd.id(i);
-  motor_cmd.q(target_position);                  // 목표 위치
-  motor_cmd.dq(0.0f);                            // 목표 속도
-  motor_cmd.tau(0.0f);                           // 피드포워드 토크
-  motor_cmd.kp(kp_gain);                         // P 게인
-  motor_cmd.kd(kd_gain);                         // D 게인
+    auto &motor_cmd = cmd.motors()[i];
+    motor_cmd.id(i);
+    motor_cmd.q(target_position);         // target position [rad]
+    motor_cmd.dq(0.0f);                   // Target velocity [rad/s]
+    motor_cmd.tau(0.0f);                  // Feedforward torque [Nm]
+    motor_cmd.kp(kp[i]);                  // kP
+    motor_cmd.kd(kd[i]);                  // kD
 }
 
 cmd_pub.write(cmd);
@@ -109,41 +110,45 @@ cmd_pub.write(cmd);
 
 ---
 
-## 제어 파라미터
+## Control Parameters
 
-### Kinematic Mode
+### Kinematic mode
 
-| Mode | 설명 |
+| Mode | Description |
 |------|------|
-| `KinematicMode::MS` | Motor Space - 모터 좌표계 |
-| `KinematicMode::PJS` | Joint Space - 조인트 좌표계 |
+| `KinematicMode::MS` | Motor space |
+| `KinematicMode::PJS` | Joint space |
 
-### PD Gains
+### PD gains
+
+The example includes built-in gains that should be tuned for the real robot:
 
 ```cpp
-// 예제 기본값 - 로봇에 맞게 조정 필요
 static const std::array<float, 31> kp = {
-  50.0, 25.0, 25.0,                          // Waist
-  100.0, 100.0, 50.0, 100.0, 25.0, 300.0,    // Left leg
-  ...
+    50.0,  25.0,  25.0,
+    500.0, 200.0, 50.0, 500.0, 300.0, 300.0,
+    500.0, 200.0, 50.0, 500.0, 300.0, 300.0,
+    50.0,  50.0,  30.0, 30.0,  5.0,   5.0,   5.0,
+    50.0,  50.0,  30.0, 30.0,  5.0,   5.0,   5.0,
+    2.0,   5.0
 };
 ```
 
 ---
 
-## 동작 설명
+## Runtime Behavior
 
-1. SDK 및 Pub/Sub 초기화
-2. 첫 번째 LowState 수신 대기
-3. 초기 위치 저장
-4. 300Hz 제어 루프 시작
-   - 모든 조인트: 초기 위치 유지
-   - Neck pitch: sine wave 모션 적용 (끄덕끄덕)
-5. 매초 상태 출력 (IMU, Neck pitch 위치)
+1. Initialize the SDK and DDS entities
+2. Wait for the first `LowState`
+3. Save the current joint positions as the initial pose
+4. Start a 300 Hz control loop
+5. Hold every joint at its initial position
+6. Drive only neck pitch with a sine wave
+7. Print IMU and neck status once per second
 
 ---
 
-## 출력 예시
+## Example Output
 
 ```
 === IGRIS SDK Low-Level Example ===
@@ -159,14 +164,13 @@ Press Ctrl+C to stop
 
 Time: 1.0s | IMU RPY: [0.01, -0.02, 0.00] | Neck Pitch: 0.15
 Time: 2.0s | IMU RPY: [0.01, -0.02, 0.00] | Neck Pitch: -0.15
-...
 ```
 
 ---
 
-## 주의사항
+## Notes
 
-- 실행 전 토크가 활성화되어 있어야 합니다
-- LOW_LEVEL 모드에서만 동작합니다
-- PD gains는 로봇에 맞게 조정하세요
-- Ctrl+C로 안전하게 종료할 수 있습니다
+- Torque must already be enabled before you run this example
+- The example only works in `LOW_LEVEL` mode
+- Tune PD gains for the target robot before real operation
+- Stop the example safely with `Ctrl+C`

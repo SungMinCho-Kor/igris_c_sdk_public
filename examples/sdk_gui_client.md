@@ -1,96 +1,115 @@
 # SDK GUI Client
 
-IGRIS SDK의 주요 기능을 시연하는 GUI 클라이언트 예제입니다.
+GUI example that demonstrates the main IGRIS SDK features in one application.
 
 ---
 
-## 개요
+## Overview
 
-`sdk_gui_client`는 IGRIS SDK의 핵심 기능들을 하나의 GUI 애플리케이션에서 테스트하고 확인할 수 있는 예제입니다.
+`sdk_gui_client` combines SDK initialization, DDS pub/sub, and service calls in a single GUI.
 
-### 시연하는 SDK 기능
+### Covered SDK features
 
-| 기능 | 설명 |
+| Feature | Description |
 |------|------|
-| **Subscriber** | `rt/lowstate` 토픽 구독 (로봇 상태 실시간 모니터링) |
-| **Publisher** | `rt/lowcmd` 토픽 발행 (300Hz low-level 제어) |
-| **Service Client** | BMS 초기화, 토크 제어, 제어 모드 전환 |
+| **Subscriber** | Subscribes to `rt/lowstate` for real-time robot state monitoring |
+| **Publisher** | Publishes `rt/lowcmd` at 300 Hz for low-level control |
+| **Service Client** | Calls BMS initialization, torque control, and control mode APIs |
+| **ControlModeState Subscriber** | Tracks the current robot control mode from `rt/controlmodestate` |
 
 ---
 
-## 실행 방법
+## Run
 
 ```bash
-# 기본 실행 (domain_id = 0)1
+# Default run (domain_id = 0)
 ./sdk_gui_client
 
-# domain_id 지정
+# Run with an explicit domain ID
 ./sdk_gui_client <domain_id>
 ```
 
-> **Note**: 로봇이 실행 중이어야 합니다.
+> **Note**: The robot controller must already be running, and the domain ID must match the controller side.
 
 ---
 
-## GUI 구조
+## UI Layout
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┐
 │   Left Panel    │  Center Panel   │   Right Panel   │
 │                 │                 │                 │
 │  Motor/Joint    │   IMU State     │  Service API    │
-│   Sliders       │                 │   Buttons       │
-│   (31개)        │   LowCmd Info   │                 │
+│   Controls      │  Control Mode   │   Buttons       │
+│   + Gains       │  LowCmd Status  │                 │
 │                 │                 │  Response Log   │
 └─────────────────┴─────────────────┴─────────────────┘
 ```
 
-### Left Panel - Motor/Joint State Sliders
+### Left panel
 
-- **31개 슬라이더**: 각 모터/조인트의 위치 표시 및 제어
-- **Motor/Joint 토글**: Motor Space(MS) / Joint Space(PJS) 전환
-- **Reset 버튼**: 초기 위치로 복귀 (LOW_LEVEL 모드에서만 동작)
+- 31 sliders for motor-space or joint-space position targets
+- Toggle between **Motor State** and **Joint State**
+- **Reset Pos** sets all targets to zero with a fixed 5 second transition
+- **Reset Gains** restores all Kp/Kd values to the built-in defaults
+- **Home** moves the robot to a simple home pose with a fixed 5 second transition
+- **Duration** controls how quickly commands converge to the target during normal slider-driven moves
 
-**동작 모드:**
-- **Display Mode**: 현재 로봇 상태를 실시간으로 표시 (읽기 전용)
-- **Control Mode**: LOW_LEVEL 모드 활성화 시 슬라이더로 목표 위치 설정
+**Behavior**
 
-### Center Panel - IMU State & LowCmd Info
+- Before LOW_LEVEL publishing starts, the sliders show live state only
+- During LOW_LEVEL publishing, sliders become command inputs
+- Switching between motor mode and joint mode synchronizes targets to the current state to avoid jumps
 
-**IMU State:**
+### Center panel
+
+**Status**
+
+- LowState receive counter
+- Current control mode from `ControlModeState`
+- LowCmd publish state and message count
+
+**IMU**
+
 - Quaternion (w, x, y, z)
 - Gyroscope (rad/s)
 - Accelerometer (m/s²)
-- Roll-Pitch-Yaw (rad)
+- Roll, pitch, yaw (rad)
 
-**LowCmd Publishing:**
-- 발행 상태 (ACTIVE/INACTIVE)
-- 발행된 메시지 수
-- 각 조인트별 명령 값 (q, tau, kp, kd)
+**LowCmd details**
 
-### Right Panel - Service API Commands
+- publish status (ACTIVE/INACTIVE)
+- published messave count
+- target commands for each joint (q, tau, kp, kd)
 
-| 버튼 | 기능 |
+### Right panel
+
+| Button | Action |
 |------|------|
-| 1. Init BMS | BMS 초기화 |
-| 2. Init Motor | 모터 초기화 |
-| 3. Init BMS and Motor | BMS + 모터 동시 초기화 |
-| 4. BMS OFF | BMS 종료 |
-| 5. Set Torque ON | 토크 활성화 |
-| 6. Set Torque OFF | 토크 비활성화 |
-| 7. Control Mode: LOW_LEVEL | Low-level 제어 모드 전환 |
-| 8. Control Mode: HIGH_LEVEL | High-level 제어 모드 전환 |
+| 1. Init BMS | Initialize only the BMS |
+| 2. Init Motor | Initialize only the motors |
+| 3. Init BMS and Motor | Initialize both BMS and motors |
+| 4. BMS OFF | Send the shutdown request |
+| 5. Set Torque ON | Enable motor torque |
+| 6. Set Torque OFF | Disable motor torque |
+| 7. Control Mode: LOW_LEVEL | Switch to low-level control mode |
+| LowLevel + Start | Switch to LOW_LEVEL and immediately start `LowCmd` publishing |
+| LowCmd Publish Start | Start publishing if the robot is already in LOW_LEVEL mode |
+| LowCmd Publish Stop | Stop publishing commands |
+| 8. Control Mode: HIGH_LEVEL | Switch back to high-level control mode |
 
-**Response Log:** 서비스 호출 결과를 타임스탬프와 함께 표시
+**Response Log**
+
+- Service call results are appended with timestamps
 
 ---
 
-## 코드 구조
+## Code Structure
 
-### 주요 컴포넌트
+### Core setup
 
 ```cpp
-// SDK 초기화
+// SDK Initialization
 ChannelFactory::Instance()->Init(domain_id);
 
 // Service Client
@@ -106,13 +125,13 @@ Publisher<LowCmd> lowcmd_pub("rt/lowcmd");
 lowcmd_pub.init();
 ```
 
-### LowState Callback
+### LowState callback
 
-로봇 상태를 수신하여 GUI 업데이트 및 제어 루프에 사용:
+The callback keeps the latest robot state, updates the live display, and captures the initial reference when the first message arrives.
 
 ```cpp
 void LowStateCallback(const LowState &state) {
-    // 현재 조인트/모터 위치 업데이트
+    // Current Joint/Motor position update
     for (int i = 0; i < 31; i++) {
         g_current_joint_pos[i] = state.joint_state()[i].q();
         g_current_motor_pos[i] = state.motor_state()[i].q();
@@ -122,7 +141,7 @@ void LowStateCallback(const LowState &state) {
 
 ### LowCmd Publishing (300Hz)
 
-LOW_LEVEL 모드에서 목표 위치를 로봇에 전송:
+When LOW_LEVEL publishing is active, a background thread builds and writes `LowCmd` messages at about 300 Hz.
 
 ```cpp
 void LowCmdPublishThread(Publisher<LowCmd>* publisher) {
@@ -147,22 +166,22 @@ void LowCmdPublishThread(Publisher<LowCmd>* publisher) {
 
 ### Service API 호출 (비동기)
 
-GUI 프리징 방지를 위해 별도 스레드에서 실행:
+Service calls run on detached worker threads so the GUI does not freeze during long operations such as BMS initialization.
 
 ```cpp
 void CallSetControlModeAsync(IgrisC_Client *client, ControlMode mode) {
     std::thread([client, mode]() {
-        auto res = client->SetControlMode(mode, 30000); // 30초 타임아웃
-        // 결과 처리
+        auto res = client->SetControlMode(mode, 60000); // 60 seconds timeout
+        // manage output
     }).detach();
 }
 ```
 
 ---
 
-## PD Gains 설정
+## Default PD Gains
 
-예제 기본값이 제공되며, 로봇 구성에 맞게 조정이 필요합니다:
+The example ships with built-in gains. They are only starting points and should be tuned for the actual robot.
 
 ```cpp
 // Kp gains
@@ -178,9 +197,9 @@ static const std::array<float, 31> default_kp = {
 
 ---
 
-## 모터/조인트 매핑
+## Motor Mapping
 
-### Motor Names (31개)
+### Motor Names (31)
 
 | Index | Name | Index | Name |
 |-------|------|-------|------|
@@ -203,7 +222,7 @@ static const std::array<float, 31> default_kp = {
 
 ---
 
-## 의존성
+## Dependencies
 
 - IGRIS SDK
 - ImGui
@@ -212,8 +231,8 @@ static const std::array<float, 31> default_kp = {
 
 ---
 
-## 주의사항
+## Notes
 
-- LOW_LEVEL 모드에서는 300Hz로 LowCmd가 지속적으로 발행됩니다
-- 토크 활성화 전 반드시 BMS 및 모터 초기화를 수행하세요
-- PD gains는 로봇 구성에 맞게 조정이 필요합니다
+- `LowCmd` messages are published continuously while low-level publishing is active
+- Run BMS and motor initialization before enabling torque
+- Tune Kp/Kd for the target robot before using this example for real motion

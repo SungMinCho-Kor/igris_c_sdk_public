@@ -497,6 +497,570 @@ class ServiceResponse {
     bool operator!=(const ServiceResponse &_other) const { return !(*this == _other); }
 };
 
+class Header {
+  private:
+    uint64_t seq_     = 0;
+    int64_t sec_      = 0;
+    uint32_t nanosec_ = 0;
+    std::string frame_id_;
+
+  public:
+    Header() = default;
+
+    explicit Header(uint64_t seq, int64_t sec, uint32_t nanosec, const std::string &frame_id)
+        : seq_(seq), sec_(sec), nanosec_(nanosec), frame_id_(frame_id) {}
+
+    uint64_t seq() const { return this->seq_; }
+    uint64_t &seq() { return this->seq_; }
+    void seq(uint64_t _val_) { this->seq_ = _val_; }
+    int64_t sec() const { return this->sec_; }
+    int64_t &sec() { return this->sec_; }
+    void sec(int64_t _val_) { this->sec_ = _val_; }
+    uint32_t nanosec() const { return this->nanosec_; }
+    uint32_t &nanosec() { return this->nanosec_; }
+    void nanosec(uint32_t _val_) { this->nanosec_ = _val_; }
+    const std::string &frame_id() const { return this->frame_id_; }
+    std::string &frame_id() { return this->frame_id_; }
+    void frame_id(const std::string &_val_) { this->frame_id_ = _val_; }
+    void frame_id(std::string &&_val_) { this->frame_id_ = _val_; }
+
+    bool operator==(const Header &_other) const {
+        (void)_other;
+        return seq_ == _other.seq_ && sec_ == _other.sec_ && nanosec_ == _other.nanosec_ && frame_id_ == _other.frame_id_;
+    }
+
+    bool operator!=(const Header &_other) const { return !(*this == _other); }
+};
+
+class ImageFrame {
+  private:
+    ::igris_c::msg::dds::Header header_;
+    uint32_t height_ = 0;
+    uint32_t width_  = 0;
+    std::string encoding_;
+    bool is_bigendian_ = false;
+    uint32_t step_     = 0;
+    std::vector<uint8_t> image_data_;
+
+  public:
+    ImageFrame() = default;
+
+    explicit ImageFrame(const ::igris_c::msg::dds::Header &header, uint32_t height, uint32_t width, const std::string &encoding,
+                        bool is_bigendian, uint32_t step, const std::vector<uint8_t> &image_data)
+        : header_(header), height_(height), width_(width), encoding_(encoding), is_bigendian_(is_bigendian), step_(step),
+          image_data_(image_data) {}
+
+    const ::igris_c::msg::dds::Header &header() const { return this->header_; }
+    ::igris_c::msg::dds::Header &header() { return this->header_; }
+    void header(const ::igris_c::msg::dds::Header &_val_) { this->header_ = _val_; }
+    void header(::igris_c::msg::dds::Header &&_val_) { this->header_ = _val_; }
+    uint32_t height() const { return this->height_; }
+    uint32_t &height() { return this->height_; }
+    void height(uint32_t _val_) { this->height_ = _val_; }
+    uint32_t width() const { return this->width_; }
+    uint32_t &width() { return this->width_; }
+    void width(uint32_t _val_) { this->width_ = _val_; }
+    const std::string &encoding() const { return this->encoding_; }
+    std::string &encoding() { return this->encoding_; }
+    void encoding(const std::string &_val_) { this->encoding_ = _val_; }
+    void encoding(std::string &&_val_) { this->encoding_ = _val_; }
+    bool is_bigendian() const { return this->is_bigendian_; }
+    bool &is_bigendian() { return this->is_bigendian_; }
+    void is_bigendian(bool _val_) { this->is_bigendian_ = _val_; }
+    uint32_t step() const { return this->step_; }
+    uint32_t &step() { return this->step_; }
+    void step(uint32_t _val_) { this->step_ = _val_; }
+    const std::vector<uint8_t> &image_data() const { return this->image_data_; }
+    std::vector<uint8_t> &image_data() { return this->image_data_; }
+    void image_data(const std::vector<uint8_t> &_val_) { this->image_data_ = _val_; }
+    void image_data(std::vector<uint8_t> &&_val_) { this->image_data_ = _val_; }
+
+    bool operator==(const ImageFrame &_other) const {
+        (void)_other;
+        return header_ == _other.header_ && height_ == _other.height_ && width_ == _other.width_ && encoding_ == _other.encoding_ &&
+               is_bigendian_ == _other.is_bigendian_ && step_ == _other.step_ && image_data_ == _other.image_data_;
+    }
+
+    bool operator!=(const ImageFrame &_other) const { return !(*this == _other); }
+};
+
+class CompressedMessage {
+  private:
+    ::igris_c::msg::dds::Header header_;
+    std::string format_;
+    std::vector<uint8_t> image_data_;
+
+  public:
+    CompressedMessage() = default;
+
+    explicit CompressedMessage(const ::igris_c::msg::dds::Header &header, const std::string &format, const std::vector<uint8_t> &image_data)
+        : header_(header), format_(format), image_data_(image_data) {}
+
+    const ::igris_c::msg::dds::Header &header() const { return this->header_; }
+    ::igris_c::msg::dds::Header &header() { return this->header_; }
+    void header(const ::igris_c::msg::dds::Header &_val_) { this->header_ = _val_; }
+    void header(::igris_c::msg::dds::Header &&_val_) { this->header_ = _val_; }
+    const std::string &format() const { return this->format_; }
+    std::string &format() { return this->format_; }
+    void format(const std::string &_val_) { this->format_ = _val_; }
+    void format(std::string &&_val_) { this->format_ = _val_; }
+    const std::vector<uint8_t> &image_data() const { return this->image_data_; }
+    std::vector<uint8_t> &image_data() { return this->image_data_; }
+    void image_data(const std::vector<uint8_t> &_val_) { this->image_data_ = _val_; }
+    void image_data(std::vector<uint8_t> &&_val_) { this->image_data_ = _val_; }
+
+    bool operator==(const CompressedMessage &_other) const {
+        (void)_other;
+        return header_ == _other.header_ && format_ == _other.format_ && image_data_ == _other.image_data_;
+    }
+
+    bool operator!=(const CompressedMessage &_other) const { return !(*this == _other); }
+};
+
+class StereoConfigRequest {
+  private:
+    std::string request_id_;
+    uint32_t stereo_width_        = 0;
+    uint32_t stereo_height_       = 0;
+    uint32_t stereo_fps_          = 0;
+    uint32_t stereo_jpeg_quality_ = 0;
+    bool enable_stereo_           = false;
+
+  public:
+    StereoConfigRequest() = default;
+
+    explicit StereoConfigRequest(const std::string &request_id, uint32_t stereo_width, uint32_t stereo_height, uint32_t stereo_fps,
+                                 uint32_t stereo_jpeg_quality, bool enable_stereo)
+        : request_id_(request_id), stereo_width_(stereo_width), stereo_height_(stereo_height), stereo_fps_(stereo_fps),
+          stereo_jpeg_quality_(stereo_jpeg_quality), enable_stereo_(enable_stereo) {}
+
+    const std::string &request_id() const { return this->request_id_; }
+    std::string &request_id() { return this->request_id_; }
+    void request_id(const std::string &_val_) { this->request_id_ = _val_; }
+    void request_id(std::string &&_val_) { this->request_id_ = _val_; }
+    uint32_t stereo_width() const { return this->stereo_width_; }
+    uint32_t &stereo_width() { return this->stereo_width_; }
+    void stereo_width(uint32_t _val_) { this->stereo_width_ = _val_; }
+    uint32_t stereo_height() const { return this->stereo_height_; }
+    uint32_t &stereo_height() { return this->stereo_height_; }
+    void stereo_height(uint32_t _val_) { this->stereo_height_ = _val_; }
+    uint32_t stereo_fps() const { return this->stereo_fps_; }
+    uint32_t &stereo_fps() { return this->stereo_fps_; }
+    void stereo_fps(uint32_t _val_) { this->stereo_fps_ = _val_; }
+    uint32_t stereo_jpeg_quality() const { return this->stereo_jpeg_quality_; }
+    uint32_t &stereo_jpeg_quality() { return this->stereo_jpeg_quality_; }
+    void stereo_jpeg_quality(uint32_t _val_) { this->stereo_jpeg_quality_ = _val_; }
+    bool enable_stereo() const { return this->enable_stereo_; }
+    bool &enable_stereo() { return this->enable_stereo_; }
+    void enable_stereo(bool _val_) { this->enable_stereo_ = _val_; }
+
+    bool operator==(const StereoConfigRequest &_other) const {
+        (void)_other;
+        return request_id_ == _other.request_id_ && stereo_width_ == _other.stereo_width_ && stereo_height_ == _other.stereo_height_ &&
+               stereo_fps_ == _other.stereo_fps_ && stereo_jpeg_quality_ == _other.stereo_jpeg_quality_ &&
+               enable_stereo_ == _other.enable_stereo_;
+    }
+
+    bool operator!=(const StereoConfigRequest &_other) const { return !(*this == _other); }
+};
+
+class RealsenseConfigRequest {
+  private:
+    std::string request_id_;
+    uint32_t d_435_width_        = 0;
+    uint32_t d_435_height_       = 0;
+    uint32_t d_435_fps_          = 0;
+    uint32_t d_435_jpeg_quality_ = 0;
+    bool enable_color_           = false;
+    bool enable_depth_           = false;
+    bool enable_ir_              = false;
+
+  public:
+    RealsenseConfigRequest() = default;
+
+    explicit RealsenseConfigRequest(const std::string &request_id, uint32_t d_435_width, uint32_t d_435_height, uint32_t d_435_fps,
+                                    uint32_t d_435_jpeg_quality, bool enable_color, bool enable_depth, bool enable_ir)
+        : request_id_(request_id), d_435_width_(d_435_width), d_435_height_(d_435_height), d_435_fps_(d_435_fps),
+          d_435_jpeg_quality_(d_435_jpeg_quality), enable_color_(enable_color), enable_depth_(enable_depth), enable_ir_(enable_ir) {}
+
+    const std::string &request_id() const { return this->request_id_; }
+    std::string &request_id() { return this->request_id_; }
+    void request_id(const std::string &_val_) { this->request_id_ = _val_; }
+    void request_id(std::string &&_val_) { this->request_id_ = _val_; }
+    uint32_t d_435_width() const { return this->d_435_width_; }
+    uint32_t &d_435_width() { return this->d_435_width_; }
+    void d_435_width(uint32_t _val_) { this->d_435_width_ = _val_; }
+    uint32_t d_435_height() const { return this->d_435_height_; }
+    uint32_t &d_435_height() { return this->d_435_height_; }
+    void d_435_height(uint32_t _val_) { this->d_435_height_ = _val_; }
+    uint32_t d_435_fps() const { return this->d_435_fps_; }
+    uint32_t &d_435_fps() { return this->d_435_fps_; }
+    void d_435_fps(uint32_t _val_) { this->d_435_fps_ = _val_; }
+    uint32_t d_435_jpeg_quality() const { return this->d_435_jpeg_quality_; }
+    uint32_t &d_435_jpeg_quality() { return this->d_435_jpeg_quality_; }
+    void d_435_jpeg_quality(uint32_t _val_) { this->d_435_jpeg_quality_ = _val_; }
+    bool enable_color() const { return this->enable_color_; }
+    bool &enable_color() { return this->enable_color_; }
+    void enable_color(bool _val_) { this->enable_color_ = _val_; }
+    bool enable_depth() const { return this->enable_depth_; }
+    bool &enable_depth() { return this->enable_depth_; }
+    void enable_depth(bool _val_) { this->enable_depth_ = _val_; }
+    bool enable_ir() const { return this->enable_ir_; }
+    bool &enable_ir() { return this->enable_ir_; }
+    void enable_ir(bool _val_) { this->enable_ir_ = _val_; }
+
+    bool operator==(const RealsenseConfigRequest &_other) const {
+        (void)_other;
+        return request_id_ == _other.request_id_ && d_435_width_ == _other.d_435_width_ && d_435_height_ == _other.d_435_height_ &&
+               d_435_fps_ == _other.d_435_fps_ && d_435_jpeg_quality_ == _other.d_435_jpeg_quality_ &&
+               enable_color_ == _other.enable_color_ && enable_depth_ == _other.enable_depth_ && enable_ir_ == _other.enable_ir_;
+    }
+
+    bool operator!=(const RealsenseConfigRequest &_other) const { return !(*this == _other); }
+};
+
+class MonoConfigRequest {
+  private:
+    std::string request_id_;
+    uint32_t mono_width_        = 0;
+    uint32_t mono_height_       = 0;
+    uint32_t mono_fps_          = 0;
+    uint32_t mono_jpeg_quality_ = 0;
+    bool enable_mono_           = false;
+
+  public:
+    MonoConfigRequest() = default;
+
+    explicit MonoConfigRequest(const std::string &request_id, uint32_t mono_width, uint32_t mono_height, uint32_t mono_fps,
+                               uint32_t mono_jpeg_quality, bool enable_mono)
+        : request_id_(request_id), mono_width_(mono_width), mono_height_(mono_height), mono_fps_(mono_fps),
+          mono_jpeg_quality_(mono_jpeg_quality), enable_mono_(enable_mono) {}
+
+    const std::string &request_id() const { return this->request_id_; }
+    std::string &request_id() { return this->request_id_; }
+    void request_id(const std::string &_val_) { this->request_id_ = _val_; }
+    void request_id(std::string &&_val_) { this->request_id_ = _val_; }
+    uint32_t mono_width() const { return this->mono_width_; }
+    uint32_t &mono_width() { return this->mono_width_; }
+    void mono_width(uint32_t _val_) { this->mono_width_ = _val_; }
+    uint32_t mono_height() const { return this->mono_height_; }
+    uint32_t &mono_height() { return this->mono_height_; }
+    void mono_height(uint32_t _val_) { this->mono_height_ = _val_; }
+    uint32_t mono_fps() const { return this->mono_fps_; }
+    uint32_t &mono_fps() { return this->mono_fps_; }
+    void mono_fps(uint32_t _val_) { this->mono_fps_ = _val_; }
+    uint32_t mono_jpeg_quality() const { return this->mono_jpeg_quality_; }
+    uint32_t &mono_jpeg_quality() { return this->mono_jpeg_quality_; }
+    void mono_jpeg_quality(uint32_t _val_) { this->mono_jpeg_quality_ = _val_; }
+    bool enable_mono() const { return this->enable_mono_; }
+    bool &enable_mono() { return this->enable_mono_; }
+    void enable_mono(bool _val_) { this->enable_mono_ = _val_; }
+
+    bool operator==(const MonoConfigRequest &_other) const {
+        (void)_other;
+        return request_id_ == _other.request_id_ && mono_width_ == _other.mono_width_ && mono_height_ == _other.mono_height_ &&
+               mono_fps_ == _other.mono_fps_ && mono_jpeg_quality_ == _other.mono_jpeg_quality_ && enable_mono_ == _other.enable_mono_;
+    }
+
+    bool operator!=(const MonoConfigRequest &_other) const { return !(*this == _other); }
+};
+
+class Vec3f {
+  private:
+    std::array<float, 3> data_ = {};
+
+  public:
+    Vec3f() = default;
+
+    explicit Vec3f(const std::array<float, 3> &data) : data_(data) {}
+
+    const std::array<float, 3> &data() const { return this->data_; }
+    std::array<float, 3> &data() { return this->data_; }
+    void data(const std::array<float, 3> &_val_) { this->data_ = _val_; }
+    void data(std::array<float, 3> &&_val_) { this->data_ = _val_; }
+
+    bool operator==(const Vec3f &_other) const {
+        (void)_other;
+        return data_ == _other.data_;
+    }
+
+    bool operator!=(const Vec3f &_other) const { return !(*this == _other); }
+};
+
+class Vec4f {
+  private:
+    std::array<float, 4> data_ = {};
+
+  public:
+    Vec4f() = default;
+
+    explicit Vec4f(const std::array<float, 4> &data) : data_(data) {}
+
+    const std::array<float, 4> &data() const { return this->data_; }
+    std::array<float, 4> &data() { return this->data_; }
+    void data(const std::array<float, 4> &_val_) { this->data_ = _val_; }
+    void data(std::array<float, 4> &&_val_) { this->data_ = _val_; }
+
+    bool operator==(const Vec4f &_other) const {
+        (void)_other;
+        return data_ == _other.data_;
+    }
+
+    bool operator!=(const Vec4f &_other) const { return !(*this == _other); }
+};
+
+class QuestController {
+  private:
+    ::igris_c::msg::dds::Vec3f position_;
+    ::igris_c::msg::dds::Vec4f quaternion_;
+    ::igris_c::msg::dds::Vec3f euler_;
+    std::array<float, 3> linear_velocity_  = {};
+    std::array<float, 3> angular_velocity_ = {};
+    std::array<float, 2> joystick_         = {};
+    std::array<float, 2> touchpad_         = {};
+    float index_trigger_                   = 0.0f;
+    float hand_trigger_                    = 0.0f;
+    bool button_one_                       = false;
+    bool button_two_                       = false;
+    bool button_three_                     = false;
+    bool button_four_                      = false;
+    bool joystick_click_                   = false;
+    bool index_trigger_touch_              = false;
+    bool hand_trigger_touch_               = false;
+
+  public:
+    QuestController() = default;
+
+    explicit QuestController(const ::igris_c::msg::dds::Vec3f &position, const ::igris_c::msg::dds::Vec4f &quaternion,
+                             const ::igris_c::msg::dds::Vec3f &euler, const std::array<float, 3> &linear_velocity,
+                             const std::array<float, 3> &angular_velocity, const std::array<float, 2> &joystick,
+                             const std::array<float, 2> &touchpad, float index_trigger, float hand_trigger, bool button_one,
+                             bool button_two, bool button_three, bool button_four, bool joystick_click, bool index_trigger_touch,
+                             bool hand_trigger_touch)
+        : position_(position), quaternion_(quaternion), euler_(euler), linear_velocity_(linear_velocity),
+          angular_velocity_(angular_velocity), joystick_(joystick), touchpad_(touchpad), index_trigger_(index_trigger),
+          hand_trigger_(hand_trigger), button_one_(button_one), button_two_(button_two), button_three_(button_three),
+          button_four_(button_four), joystick_click_(joystick_click), index_trigger_touch_(index_trigger_touch),
+          hand_trigger_touch_(hand_trigger_touch) {}
+
+    const ::igris_c::msg::dds::Vec3f &position() const { return this->position_; }
+    ::igris_c::msg::dds::Vec3f &position() { return this->position_; }
+    void position(const ::igris_c::msg::dds::Vec3f &_val_) { this->position_ = _val_; }
+    void position(::igris_c::msg::dds::Vec3f &&_val_) { this->position_ = _val_; }
+    const ::igris_c::msg::dds::Vec4f &quaternion() const { return this->quaternion_; }
+    ::igris_c::msg::dds::Vec4f &quaternion() { return this->quaternion_; }
+    void quaternion(const ::igris_c::msg::dds::Vec4f &_val_) { this->quaternion_ = _val_; }
+    void quaternion(::igris_c::msg::dds::Vec4f &&_val_) { this->quaternion_ = _val_; }
+    const ::igris_c::msg::dds::Vec3f &euler() const { return this->euler_; }
+    ::igris_c::msg::dds::Vec3f &euler() { return this->euler_; }
+    void euler(const ::igris_c::msg::dds::Vec3f &_val_) { this->euler_ = _val_; }
+    void euler(::igris_c::msg::dds::Vec3f &&_val_) { this->euler_ = _val_; }
+    const std::array<float, 3> &linear_velocity() const { return this->linear_velocity_; }
+    std::array<float, 3> &linear_velocity() { return this->linear_velocity_; }
+    void linear_velocity(const std::array<float, 3> &_val_) { this->linear_velocity_ = _val_; }
+    void linear_velocity(std::array<float, 3> &&_val_) { this->linear_velocity_ = _val_; }
+    const std::array<float, 3> &angular_velocity() const { return this->angular_velocity_; }
+    std::array<float, 3> &angular_velocity() { return this->angular_velocity_; }
+    void angular_velocity(const std::array<float, 3> &_val_) { this->angular_velocity_ = _val_; }
+    void angular_velocity(std::array<float, 3> &&_val_) { this->angular_velocity_ = _val_; }
+    const std::array<float, 2> &joystick() const { return this->joystick_; }
+    std::array<float, 2> &joystick() { return this->joystick_; }
+    void joystick(const std::array<float, 2> &_val_) { this->joystick_ = _val_; }
+    void joystick(std::array<float, 2> &&_val_) { this->joystick_ = _val_; }
+    const std::array<float, 2> &touchpad() const { return this->touchpad_; }
+    std::array<float, 2> &touchpad() { return this->touchpad_; }
+    void touchpad(const std::array<float, 2> &_val_) { this->touchpad_ = _val_; }
+    void touchpad(std::array<float, 2> &&_val_) { this->touchpad_ = _val_; }
+    float index_trigger() const { return this->index_trigger_; }
+    float &index_trigger() { return this->index_trigger_; }
+    void index_trigger(float _val_) { this->index_trigger_ = _val_; }
+    float hand_trigger() const { return this->hand_trigger_; }
+    float &hand_trigger() { return this->hand_trigger_; }
+    void hand_trigger(float _val_) { this->hand_trigger_ = _val_; }
+    bool button_one() const { return this->button_one_; }
+    bool &button_one() { return this->button_one_; }
+    void button_one(bool _val_) { this->button_one_ = _val_; }
+    bool button_two() const { return this->button_two_; }
+    bool &button_two() { return this->button_two_; }
+    void button_two(bool _val_) { this->button_two_ = _val_; }
+    bool button_three() const { return this->button_three_; }
+    bool &button_three() { return this->button_three_; }
+    void button_three(bool _val_) { this->button_three_ = _val_; }
+    bool button_four() const { return this->button_four_; }
+    bool &button_four() { return this->button_four_; }
+    void button_four(bool _val_) { this->button_four_ = _val_; }
+    bool joystick_click() const { return this->joystick_click_; }
+    bool &joystick_click() { return this->joystick_click_; }
+    void joystick_click(bool _val_) { this->joystick_click_ = _val_; }
+    bool index_trigger_touch() const { return this->index_trigger_touch_; }
+    bool &index_trigger_touch() { return this->index_trigger_touch_; }
+    void index_trigger_touch(bool _val_) { this->index_trigger_touch_ = _val_; }
+    bool hand_trigger_touch() const { return this->hand_trigger_touch_; }
+    bool &hand_trigger_touch() { return this->hand_trigger_touch_; }
+    void hand_trigger_touch(bool _val_) { this->hand_trigger_touch_ = _val_; }
+
+    bool operator==(const QuestController &_other) const {
+        (void)_other;
+        return position_ == _other.position_ && quaternion_ == _other.quaternion_ && euler_ == _other.euler_ &&
+               linear_velocity_ == _other.linear_velocity_ && angular_velocity_ == _other.angular_velocity_ &&
+               joystick_ == _other.joystick_ && touchpad_ == _other.touchpad_ && index_trigger_ == _other.index_trigger_ &&
+               hand_trigger_ == _other.hand_trigger_ && button_one_ == _other.button_one_ && button_two_ == _other.button_two_ &&
+               button_three_ == _other.button_three_ && button_four_ == _other.button_four_ && joystick_click_ == _other.joystick_click_ &&
+               index_trigger_touch_ == _other.index_trigger_touch_ && hand_trigger_touch_ == _other.hand_trigger_touch_;
+    }
+
+    bool operator!=(const QuestController &_other) const { return !(*this == _other); }
+};
+
+class QuestHand {
+  private:
+    ::igris_c::msg::dds::Vec3f position_;
+    ::igris_c::msg::dds::Vec4f quaternion_;
+    ::igris_c::msg::dds::Vec3f euler_;
+    float confidence_                                         = 0.0f;
+    std::array<bool, 5> pinch_                                = {};
+    std::array<float, 5> pinch_strength_                      = {};
+    std::array<float, 5> finger_confidence_                   = {};
+    std::array<bool, 5> tip_valid_                            = {};
+    std::array<::igris_c::msg::dds::Vec3f, 5> tip_position_   = {};
+    std::array<::igris_c::msg::dds::Vec4f, 5> tip_quaternion_ = {};
+    std::array<float, 5> tip_to_thumb_distance_               = {};
+
+  public:
+    QuestHand() = default;
+
+    explicit QuestHand(const ::igris_c::msg::dds::Vec3f &position, const ::igris_c::msg::dds::Vec4f &quaternion,
+                       const ::igris_c::msg::dds::Vec3f &euler, float confidence, const std::array<bool, 5> &pinch,
+                       const std::array<float, 5> &pinch_strength, const std::array<float, 5> &finger_confidence,
+                       const std::array<bool, 5> &tip_valid, const std::array<::igris_c::msg::dds::Vec3f, 5> &tip_position,
+                       const std::array<::igris_c::msg::dds::Vec4f, 5> &tip_quaternion, const std::array<float, 5> &tip_to_thumb_distance)
+        : position_(position), quaternion_(quaternion), euler_(euler), confidence_(confidence), pinch_(pinch),
+          pinch_strength_(pinch_strength), finger_confidence_(finger_confidence), tip_valid_(tip_valid), tip_position_(tip_position),
+          tip_quaternion_(tip_quaternion), tip_to_thumb_distance_(tip_to_thumb_distance) {}
+
+    const ::igris_c::msg::dds::Vec3f &position() const { return this->position_; }
+    ::igris_c::msg::dds::Vec3f &position() { return this->position_; }
+    void position(const ::igris_c::msg::dds::Vec3f &_val_) { this->position_ = _val_; }
+    void position(::igris_c::msg::dds::Vec3f &&_val_) { this->position_ = _val_; }
+    const ::igris_c::msg::dds::Vec4f &quaternion() const { return this->quaternion_; }
+    ::igris_c::msg::dds::Vec4f &quaternion() { return this->quaternion_; }
+    void quaternion(const ::igris_c::msg::dds::Vec4f &_val_) { this->quaternion_ = _val_; }
+    void quaternion(::igris_c::msg::dds::Vec4f &&_val_) { this->quaternion_ = _val_; }
+    const ::igris_c::msg::dds::Vec3f &euler() const { return this->euler_; }
+    ::igris_c::msg::dds::Vec3f &euler() { return this->euler_; }
+    void euler(const ::igris_c::msg::dds::Vec3f &_val_) { this->euler_ = _val_; }
+    void euler(::igris_c::msg::dds::Vec3f &&_val_) { this->euler_ = _val_; }
+    float confidence() const { return this->confidence_; }
+    float &confidence() { return this->confidence_; }
+    void confidence(float _val_) { this->confidence_ = _val_; }
+    const std::array<bool, 5> &pinch() const { return this->pinch_; }
+    std::array<bool, 5> &pinch() { return this->pinch_; }
+    void pinch(const std::array<bool, 5> &_val_) { this->pinch_ = _val_; }
+    void pinch(std::array<bool, 5> &&_val_) { this->pinch_ = _val_; }
+    const std::array<float, 5> &pinch_strength() const { return this->pinch_strength_; }
+    std::array<float, 5> &pinch_strength() { return this->pinch_strength_; }
+    void pinch_strength(const std::array<float, 5> &_val_) { this->pinch_strength_ = _val_; }
+    void pinch_strength(std::array<float, 5> &&_val_) { this->pinch_strength_ = _val_; }
+    const std::array<float, 5> &finger_confidence() const { return this->finger_confidence_; }
+    std::array<float, 5> &finger_confidence() { return this->finger_confidence_; }
+    void finger_confidence(const std::array<float, 5> &_val_) { this->finger_confidence_ = _val_; }
+    void finger_confidence(std::array<float, 5> &&_val_) { this->finger_confidence_ = _val_; }
+    const std::array<bool, 5> &tip_valid() const { return this->tip_valid_; }
+    std::array<bool, 5> &tip_valid() { return this->tip_valid_; }
+    void tip_valid(const std::array<bool, 5> &_val_) { this->tip_valid_ = _val_; }
+    void tip_valid(std::array<bool, 5> &&_val_) { this->tip_valid_ = _val_; }
+    const std::array<::igris_c::msg::dds::Vec3f, 5> &tip_position() const { return this->tip_position_; }
+    std::array<::igris_c::msg::dds::Vec3f, 5> &tip_position() { return this->tip_position_; }
+    void tip_position(const std::array<::igris_c::msg::dds::Vec3f, 5> &_val_) { this->tip_position_ = _val_; }
+    void tip_position(std::array<::igris_c::msg::dds::Vec3f, 5> &&_val_) { this->tip_position_ = _val_; }
+    const std::array<::igris_c::msg::dds::Vec4f, 5> &tip_quaternion() const { return this->tip_quaternion_; }
+    std::array<::igris_c::msg::dds::Vec4f, 5> &tip_quaternion() { return this->tip_quaternion_; }
+    void tip_quaternion(const std::array<::igris_c::msg::dds::Vec4f, 5> &_val_) { this->tip_quaternion_ = _val_; }
+    void tip_quaternion(std::array<::igris_c::msg::dds::Vec4f, 5> &&_val_) { this->tip_quaternion_ = _val_; }
+    const std::array<float, 5> &tip_to_thumb_distance() const { return this->tip_to_thumb_distance_; }
+    std::array<float, 5> &tip_to_thumb_distance() { return this->tip_to_thumb_distance_; }
+    void tip_to_thumb_distance(const std::array<float, 5> &_val_) { this->tip_to_thumb_distance_ = _val_; }
+    void tip_to_thumb_distance(std::array<float, 5> &&_val_) { this->tip_to_thumb_distance_ = _val_; }
+
+    bool operator==(const QuestHand &_other) const {
+        (void)_other;
+        return position_ == _other.position_ && quaternion_ == _other.quaternion_ && euler_ == _other.euler_ &&
+               confidence_ == _other.confidence_ && pinch_ == _other.pinch_ && pinch_strength_ == _other.pinch_strength_ &&
+               finger_confidence_ == _other.finger_confidence_ && tip_valid_ == _other.tip_valid_ &&
+               tip_position_ == _other.tip_position_ && tip_quaternion_ == _other.tip_quaternion_ &&
+               tip_to_thumb_distance_ == _other.tip_to_thumb_distance_;
+    }
+
+    bool operator!=(const QuestHand &_other) const { return !(*this == _other); }
+};
+
+class QuestMessage {
+  private:
+    ::igris_c::msg::dds::Header header_;
+    int32_t tracking_mode_ = 0;
+    ::igris_c::msg::dds::Vec3f head_position_;
+    ::igris_c::msg::dds::Vec4f head_quaternion_;
+    ::igris_c::msg::dds::Vec3f head_euler_;
+    std::array<::igris_c::msg::dds::QuestController, 2> controller_ = {};
+    std::array<::igris_c::msg::dds::QuestHand, 2> hand_             = {};
+    std::string ip_;
+    float battery_ = 0.0f;
+
+  public:
+    QuestMessage() = default;
+
+    explicit QuestMessage(const ::igris_c::msg::dds::Header &header, int32_t tracking_mode, const ::igris_c::msg::dds::Vec3f &head_position,
+                          const ::igris_c::msg::dds::Vec4f &head_quaternion, const ::igris_c::msg::dds::Vec3f &head_euler,
+                          const std::array<::igris_c::msg::dds::QuestController, 2> &controller,
+                          const std::array<::igris_c::msg::dds::QuestHand, 2> &hand, const std::string &ip, float battery)
+        : header_(header), tracking_mode_(tracking_mode), head_position_(head_position), head_quaternion_(head_quaternion),
+          head_euler_(head_euler), controller_(controller), hand_(hand), ip_(ip), battery_(battery) {}
+
+    const ::igris_c::msg::dds::Header &header() const { return this->header_; }
+    ::igris_c::msg::dds::Header &header() { return this->header_; }
+    void header(const ::igris_c::msg::dds::Header &_val_) { this->header_ = _val_; }
+    void header(::igris_c::msg::dds::Header &&_val_) { this->header_ = _val_; }
+    int32_t tracking_mode() const { return this->tracking_mode_; }
+    int32_t &tracking_mode() { return this->tracking_mode_; }
+    void tracking_mode(int32_t _val_) { this->tracking_mode_ = _val_; }
+    const ::igris_c::msg::dds::Vec3f &head_position() const { return this->head_position_; }
+    ::igris_c::msg::dds::Vec3f &head_position() { return this->head_position_; }
+    void head_position(const ::igris_c::msg::dds::Vec3f &_val_) { this->head_position_ = _val_; }
+    void head_position(::igris_c::msg::dds::Vec3f &&_val_) { this->head_position_ = _val_; }
+    const ::igris_c::msg::dds::Vec4f &head_quaternion() const { return this->head_quaternion_; }
+    ::igris_c::msg::dds::Vec4f &head_quaternion() { return this->head_quaternion_; }
+    void head_quaternion(const ::igris_c::msg::dds::Vec4f &_val_) { this->head_quaternion_ = _val_; }
+    void head_quaternion(::igris_c::msg::dds::Vec4f &&_val_) { this->head_quaternion_ = _val_; }
+    const ::igris_c::msg::dds::Vec3f &head_euler() const { return this->head_euler_; }
+    ::igris_c::msg::dds::Vec3f &head_euler() { return this->head_euler_; }
+    void head_euler(const ::igris_c::msg::dds::Vec3f &_val_) { this->head_euler_ = _val_; }
+    void head_euler(::igris_c::msg::dds::Vec3f &&_val_) { this->head_euler_ = _val_; }
+    const std::array<::igris_c::msg::dds::QuestController, 2> &controller() const { return this->controller_; }
+    std::array<::igris_c::msg::dds::QuestController, 2> &controller() { return this->controller_; }
+    void controller(const std::array<::igris_c::msg::dds::QuestController, 2> &_val_) { this->controller_ = _val_; }
+    void controller(std::array<::igris_c::msg::dds::QuestController, 2> &&_val_) { this->controller_ = _val_; }
+    const std::array<::igris_c::msg::dds::QuestHand, 2> &hand() const { return this->hand_; }
+    std::array<::igris_c::msg::dds::QuestHand, 2> &hand() { return this->hand_; }
+    void hand(const std::array<::igris_c::msg::dds::QuestHand, 2> &_val_) { this->hand_ = _val_; }
+    void hand(std::array<::igris_c::msg::dds::QuestHand, 2> &&_val_) { this->hand_ = _val_; }
+    const std::string &ip() const { return this->ip_; }
+    std::string &ip() { return this->ip_; }
+    void ip(const std::string &_val_) { this->ip_ = _val_; }
+    void ip(std::string &&_val_) { this->ip_ = _val_; }
+    float battery() const { return this->battery_; }
+    float &battery() { return this->battery_; }
+    void battery(float _val_) { this->battery_ = _val_; }
+
+    bool operator==(const QuestMessage &_other) const {
+        (void)_other;
+        return header_ == _other.header_ && tracking_mode_ == _other.tracking_mode_ && head_position_ == _other.head_position_ &&
+               head_quaternion_ == _other.head_quaternion_ && head_euler_ == _other.head_euler_ && controller_ == _other.controller_ &&
+               hand_ == _other.hand_ && ip_ == _other.ip_ && battery_ == _other.battery_;
+    }
+
+    bool operator!=(const QuestMessage &_other) const { return !(*this == _other); }
+};
+
 }  // namespace dds
 
 }  // namespace msg
@@ -1381,6 +1945,796 @@ template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::ServiceRespon
 }
 #endif  // DDSCXX_HAS_TYPE_DISCOVERY
 
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::Header>::getTypeName() { return "igris_c::msg::dds::Header"; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::Header>::isSelfContained() { return false; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::Header>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::Header>::type_map_blob_sz() { return 334; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::Header>::type_info_blob_sz() { return 100; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::Header>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0x6c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85, 0xd2, 0xcd, 0x90, 0x0a, 0x36,
+        0xce, 0xa7, 0x00, 0x54, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x44, 0x00,
+        0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0xe0, 0x68, 0xc2, 0xde,
+        0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x05, 0x74, 0x45, 0x9c, 0xa3, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0xe2, 0x04, 0x64, 0xd5, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01,
+        0x00, 0x70, 0x00, 0x4b, 0xb3, 0x9c, 0x5c, 0xb3, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f,
+        0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0x00, 0x9b, 0x00, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x22, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67,
+        0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x48, 0x65, 0x61, 0x64, 0x65, 0x72, 0x00, 0x00, 0x00, 0x6b, 0x00, 0x00, 0x00, 0x04,
+        0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0x00, 0x04, 0x00, 0x00, 0x00, 0x73, 0x65,
+        0x71, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x05, 0x00, 0x04, 0x00, 0x00,
+        0x00, 0x73, 0x65, 0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00,
+        0x08, 0x00, 0x00, 0x00, 0x6e, 0x61, 0x6e, 0x6f, 0x73, 0x65, 0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x03,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x09, 0x00, 0x00, 0x00, 0x66, 0x72, 0x61, 0x6d, 0x65, 0x5f, 0x69, 0x64, 0x00, 0x00,
+        0x00, 0x00, 0x22, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35,
+        0x88, 0xf1, 0x7f, 0x7f, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85, 0xd2, 0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::Header>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0x60, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
+        0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85, 0xd2, 0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7, 0x00, 0x58, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00,
+        0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88,
+        0xf1, 0x7f, 0x7f, 0x00, 0x9f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::ImageFrame>::getTypeName() { return "igris_c::msg::dds::ImageFrame"; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::ImageFrame>::isSelfContained() { return false; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::ImageFrame>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::ImageFrame>::type_map_blob_sz() { return 824; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::ImageFrame>::type_info_blob_sz() { return 148; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::ImageFrame>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0x18, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0xf1, 0x49, 0xaa, 0x81, 0xdf, 0x32, 0x05, 0x44, 0x04, 0x85, 0xeb, 0xb0, 0x56, 0xff,
+        0xc7, 0x00, 0x98, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x88, 0x00, 0x00, 0x00,
+        0x07, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85,
+        0xd2, 0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7, 0x09, 0x9f, 0xb9, 0x95, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x07, 0xb4, 0x35, 0xe2, 0x27, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0xea, 0xae, 0x26,
+        0xa6, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x84, 0xbe, 0xa1, 0xf0, 0x0b, 0x00, 0x00, 0x00,
+        0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x70, 0x8e, 0x8a, 0xc3, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x07, 0x27, 0x64, 0xca, 0x9d, 0x00, 0x10, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x80, 0xf3, 0x01, 0x00, 0x00, 0x02,
+        0xfa, 0x32, 0x59, 0x6b, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85, 0xd2, 0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7, 0x00, 0x54, 0x00,
+        0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+        0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0xe0, 0x68, 0xc2, 0xde, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x05, 0x74, 0x45, 0x9c, 0xa3, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0xe2,
+        0x04, 0x64, 0xd5, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x4b, 0xb3, 0x9c, 0x5c, 0xd3, 0x01,
+        0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0xf2, 0x38, 0xcd, 0x53, 0xc7, 0x80, 0x77, 0x9d, 0x03, 0x16, 0xd7, 0x87, 0x84, 0x7c, 0x8f, 0x00,
+        0x0d, 0x01, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x26, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x69, 0x67,
+        0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x49, 0x6d, 0x61, 0x67, 0x65,
+        0x46, 0x72, 0x61, 0x6d, 0x65, 0x00, 0x00, 0x00, 0xd9, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0x00, 0x00, 0x00,
+        0x07, 0x00, 0x00, 0x00, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x15, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x07, 0x00, 0x00, 0x00, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x14, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x06, 0x00, 0x00, 0x00, 0x77, 0x69, 0x64, 0x74, 0x68, 0x00,
+        0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x09, 0x00, 0x00, 0x00, 0x65, 0x6e, 0x63, 0x6f,
+        0x64, 0x69, 0x6e, 0x67, 0x00, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0d, 0x00,
+        0x00, 0x00, 0x69, 0x73, 0x5f, 0x62, 0x69, 0x67, 0x65, 0x6e, 0x64, 0x69, 0x61, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x13, 0x00, 0x00, 0x00,
+        0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x05, 0x00, 0x00, 0x00, 0x73, 0x74, 0x65, 0x70, 0x00, 0x00, 0x00, 0x00, 0x1d, 0x00,
+        0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x80, 0xf3, 0x01, 0x00, 0x00, 0x02, 0x0b, 0x00, 0x00, 0x00, 0x69, 0x6d, 0x61, 0x67,
+        0x65, 0x5f, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88, 0xf1,
+        0x7f, 0x7f, 0x9b, 0x00, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x00,
+        0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x48, 0x65, 0x61,
+        0x64, 0x65, 0x72, 0x00, 0x00, 0x00, 0x6b, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x08, 0x00, 0x04, 0x00, 0x00, 0x00, 0x73, 0x65, 0x71, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x05, 0x00, 0x04, 0x00, 0x00, 0x00, 0x73, 0x65, 0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00,
+        0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x08, 0x00, 0x00, 0x00, 0x6e, 0x61, 0x6e, 0x6f, 0x73, 0x65, 0x63, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x09, 0x00, 0x00, 0x00, 0x66, 0x72, 0x61, 0x6d,
+        0x65, 0x5f, 0x69, 0x64, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0xf2, 0x38, 0xcd, 0x53, 0xc7, 0x80,
+        0x77, 0x9d, 0x03, 0x16, 0xd7, 0x87, 0x84, 0x7c, 0x8f, 0xf1, 0x49, 0xaa, 0x81, 0xdf, 0x32, 0x05, 0x44, 0x04, 0x85, 0xeb, 0xb0, 0x56,
+        0xff, 0xc7, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0xf1, 0x62, 0xea, 0xb5, 0x55,
+        0x8d, 0x3f, 0x85, 0xd2, 0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::ImageFrame>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0x90, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0x40, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0x49,
+        0xaa, 0x81, 0xdf, 0x32, 0x05, 0x44, 0x04, 0x85, 0xeb, 0xb0, 0x56, 0xff, 0xc7, 0x00, 0x9c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x1c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85, 0xd2, 0xcd,
+        0x90, 0x0a, 0x36, 0xce, 0xa7, 0x00, 0x58, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40, 0x40, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x00, 0x00,
+        0x14, 0x00, 0x00, 0x00, 0xf2, 0x38, 0xcd, 0x53, 0xc7, 0x80, 0x77, 0x9d, 0x03, 0x16, 0xd7, 0x87, 0x84, 0x7c, 0x8f, 0x00, 0x11, 0x01,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x5a, 0x22, 0x34,
+        0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0x00, 0x9f, 0x00, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::CompressedMessage>::getTypeName() {
+    return "igris_c::msg::dds::CompressedMessage";
+}
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::CompressedMessage>::isSelfContained() { return false; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::CompressedMessage>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::CompressedMessage>::type_map_blob_sz() { return 660; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::CompressedMessage>::type_info_blob_sz() { return 148; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::CompressedMessage>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0xd8, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0xf1, 0xda, 0x71, 0xf5, 0x3f, 0xd5, 0xa0, 0x8d, 0xc7, 0x7e, 0xc7, 0xae, 0x0f, 0x9a,
+        0x0d, 0x00, 0x58, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00,
+        0x03, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85,
+        0xd2, 0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7, 0x09, 0x9f, 0xb9, 0x95, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x70, 0x00, 0x1d, 0xdc, 0xb9, 0x2a, 0x10, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x80, 0xf3, 0x01, 0x00,
+        0x00, 0x02, 0xfa, 0x32, 0x59, 0x6b, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85, 0xd2, 0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7, 0x00,
+        0x54, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00, 0x00, 0x04, 0x00,
+        0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0xe0, 0x68, 0xc2, 0xde, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x05, 0x74, 0x45, 0x9c, 0xa3, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x07, 0xe2, 0x04, 0x64, 0xd5, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x4b, 0xb3, 0x9c, 0x5c,
+        0x6f, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0xf2, 0xc7, 0xf0, 0x6e, 0xaf, 0x8a, 0xd2, 0x06, 0xea, 0xa6, 0xc6, 0x70, 0x1d, 0xa5,
+        0xaa, 0x00, 0xa9, 0x00, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x2d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x25, 0x00, 0x00, 0x00,
+        0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x43, 0x6f, 0x6d,
+        0x70, 0x72, 0x65, 0x73, 0x73, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x00, 0x00, 0x00, 0x6d, 0x00, 0x00, 0x00,
+        0x03, 0x00, 0x00, 0x00, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e,
+        0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x15, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x07, 0x00, 0x00, 0x00, 0x66, 0x6f,
+        0x72, 0x6d, 0x61, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x80, 0xf3,
+        0x01, 0x00, 0x00, 0x02, 0x0b, 0x00, 0x00, 0x00, 0x69, 0x6d, 0x61, 0x67, 0x65, 0x5f, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0xf2,
+        0x5a, 0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0x9b, 0x00, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00,
+        0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d,
+        0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x48, 0x65, 0x61, 0x64, 0x65, 0x72, 0x00, 0x00, 0x00, 0x6b, 0x00, 0x00, 0x00,
+        0x04, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0x00, 0x04, 0x00, 0x00, 0x00, 0x73, 0x65,
+        0x71, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x05, 0x00, 0x04, 0x00, 0x00, 0x00,
+        0x73, 0x65, 0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x08, 0x00,
+        0x00, 0x00, 0x6e, 0x61, 0x6e, 0x6f, 0x73, 0x65, 0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x70, 0x00, 0x09, 0x00, 0x00, 0x00, 0x66, 0x72, 0x61, 0x6d, 0x65, 0x5f, 0x69, 0x64, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00,
+        0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0xf2, 0xc7, 0xf0, 0x6e, 0xaf, 0x8a, 0xd2, 0x06, 0xea, 0xa6, 0xc6, 0x70, 0x1d, 0xa5, 0xaa, 0xf1,
+        0xda, 0x71, 0xf5, 0x3f, 0xd5, 0xa0, 0x8d, 0xc7, 0x7e, 0xc7, 0xae, 0x0f, 0x9a, 0x0d, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e,
+        0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85, 0xd2, 0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::CompressedMessage>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0x90, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0x40, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0xda,
+        0x71, 0xf5, 0x3f, 0xd5, 0xa0, 0x8d, 0xc7, 0x7e, 0xc7, 0xae, 0x0f, 0x9a, 0x0d, 0x00, 0x5c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x1c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85, 0xd2, 0xcd,
+        0x90, 0x0a, 0x36, 0xce, 0xa7, 0x00, 0x58, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40, 0x40, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x00, 0x00,
+        0x14, 0x00, 0x00, 0x00, 0xf2, 0xc7, 0xf0, 0x6e, 0xaf, 0x8a, 0xd2, 0x06, 0xea, 0xa6, 0xc6, 0x70, 0x1d, 0xa5, 0xaa, 0x00, 0xad, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x5a, 0x22, 0x34,
+        0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0x00, 0x9f, 0x00, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::StereoConfigRequest>::getTypeName() {
+    return "igris_c::msg::dds::StereoConfigRequest";
+}
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::StereoConfigRequest>::isSelfContained() { return false; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::StereoConfigRequest>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::StereoConfigRequest>::type_map_blob_sz() { return 474; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::StereoConfigRequest>::type_info_blob_sz() { return 100; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::StereoConfigRequest>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0x8b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf1, 0xee, 0x49, 0xd0, 0x13, 0xbe, 0x94, 0xa2, 0xbe, 0x85, 0xf1, 0x79, 0x58, 0x85,
+        0xb7, 0x00, 0x73, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63, 0x00, 0x00, 0x00,
+        0x06, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0xf6, 0x8d, 0x2c, 0x36, 0x0b, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0xb7, 0xbb, 0x50, 0x9a, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x07, 0x53, 0xd8, 0xb5, 0x10, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x92, 0xad, 0xfb,
+        0x56, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0xb0, 0xfd, 0xab, 0x2e, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x14, 0x6b, 0xe7, 0x45, 0x00, 0x20, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf2, 0x4f,
+        0x83, 0xc4, 0xb7, 0x5a, 0x64, 0xda, 0x3c, 0x88, 0xb0, 0x87, 0x0f, 0x79, 0x69, 0x00, 0x08, 0x01, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00,
+        0x2f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x27, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d,
+        0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x53, 0x74, 0x65, 0x72, 0x65, 0x6f, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52,
+        0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x00, 0x00, 0xcc, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x72, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x73, 0x74,
+        0x65, 0x72, 0x65, 0x6f, 0x5f, 0x77, 0x69, 0x64, 0x74, 0x68, 0x00, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x07, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x73, 0x74, 0x65, 0x72, 0x65, 0x6f, 0x5f, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x00,
+        0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x73, 0x74, 0x65, 0x72,
+        0x65, 0x6f, 0x5f, 0x66, 0x70, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x07, 0x00, 0x14, 0x00, 0x00, 0x00, 0x73, 0x74, 0x65, 0x72, 0x65, 0x6f, 0x5f, 0x6a, 0x70, 0x65, 0x67, 0x5f, 0x71, 0x75, 0x61, 0x6c,
+        0x69, 0x74, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0e, 0x00,
+        0x00, 0x00, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x73, 0x74, 0x65, 0x72, 0x65, 0x6f, 0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0xf2, 0x4f, 0x83, 0xc4, 0xb7, 0x5a, 0x64, 0xda, 0x3c, 0x88, 0xb0, 0x87, 0x0f, 0x79, 0x69, 0xf1, 0xee, 0x49,
+        0xd0, 0x13, 0xbe, 0x94, 0xa2, 0xbe, 0x85, 0xf1, 0x79, 0x58, 0x85, 0xb7,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::StereoConfigRequest>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0x60, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
+        0xf1, 0xee, 0x49, 0xd0, 0x13, 0xbe, 0x94, 0xa2, 0xbe, 0x85, 0xf1, 0x79, 0x58, 0x85, 0xb7, 0x00, 0x77, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00,
+        0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x4f, 0x83, 0xc4, 0xb7, 0x5a, 0x64, 0xda, 0x3c, 0x88, 0xb0, 0x87,
+        0x0f, 0x79, 0x69, 0x00, 0x0c, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::RealsenseConfigRequest>::getTypeName() {
+    return "igris_c::msg::dds::RealsenseConfigRequest";
+}
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::RealsenseConfigRequest>::isSelfContained() { return false; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::RealsenseConfigRequest>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::RealsenseConfigRequest>::type_map_blob_sz() { return 566; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::RealsenseConfigRequest>::type_info_blob_sz() { return 100; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::RealsenseConfigRequest>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0xab, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf1, 0x79, 0x5f, 0x16, 0x63, 0x5a, 0xd9, 0xc3, 0xcf, 0x1f, 0x53, 0xf9, 0x3f, 0x25,
+        0x0c, 0x00, 0x93, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x83, 0x00, 0x00, 0x00,
+        0x08, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0xf6, 0x8d, 0x2c, 0x36, 0x0b, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x81, 0x40, 0x90, 0x52, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x07, 0x43, 0xcc, 0x79, 0xab, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0xd2, 0xf8, 0xee,
+        0x2a, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x09, 0xd5, 0xbc, 0x87, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0xc6, 0xa8, 0xfe, 0x6b, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x01, 0x04, 0x64, 0x0b, 0x7f, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x2a, 0x1f, 0xee, 0x3b, 0x00,
+        0x5c, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf2, 0xfc, 0x3e, 0x1a, 0x8c, 0x82, 0xa5, 0xe5, 0x93, 0xa0, 0x12, 0x29, 0xbc, 0xb2,
+        0xfa, 0x00, 0x44, 0x01, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x00, 0x00, 0x00,
+        0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x52, 0x65, 0x61,
+        0x6c, 0x73, 0x65, 0x6e, 0x73, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00,
+        0x04, 0x01, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x0b, 0x00,
+        0x00, 0x00, 0x72, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x64, 0x5f, 0x34, 0x33, 0x35, 0x5f, 0x77, 0x69, 0x64, 0x74,
+        0x68, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x0d, 0x00, 0x00, 0x00,
+        0x64, 0x5f, 0x34, 0x33, 0x35, 0x5f, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x03, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x64, 0x5f, 0x34, 0x33, 0x35, 0x5f, 0x66, 0x70, 0x73, 0x00, 0x00, 0x00,
+        0x21, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x13, 0x00, 0x00, 0x00, 0x64, 0x5f, 0x34, 0x33, 0x35, 0x5f,
+        0x6a, 0x70, 0x65, 0x67, 0x5f, 0x71, 0x75, 0x61, 0x6c, 0x69, 0x74, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00,
+        0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x63, 0x6f, 0x6c,
+        0x6f, 0x72, 0x00, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0d, 0x00, 0x00, 0x00,
+        0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x64, 0x65, 0x70, 0x74, 0x68, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x07, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x69, 0x72, 0x00, 0x00, 0x00,
+        0x22, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf2, 0xfc, 0x3e, 0x1a, 0x8c, 0x82, 0xa5, 0xe5, 0x93, 0xa0, 0x12, 0x29, 0xbc, 0xb2,
+        0xfa, 0xf1, 0x79, 0x5f, 0x16, 0x63, 0x5a, 0xd9, 0xc3, 0xcf, 0x1f, 0x53, 0xf9, 0x3f, 0x25, 0x0c,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::RealsenseConfigRequest>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0x60, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
+        0xf1, 0x79, 0x5f, 0x16, 0x63, 0x5a, 0xd9, 0xc3, 0xcf, 0x1f, 0x53, 0xf9, 0x3f, 0x25, 0x0c, 0x00, 0x97, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00,
+        0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0xfc, 0x3e, 0x1a, 0x8c, 0x82, 0xa5, 0xe5, 0x93, 0xa0, 0x12, 0x29,
+        0xbc, 0xb2, 0xfa, 0x00, 0x48, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::MonoConfigRequest>::getTypeName() {
+    return "igris_c::msg::dds::MonoConfigRequest";
+}
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::MonoConfigRequest>::isSelfContained() { return false; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::MonoConfigRequest>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::MonoConfigRequest>::type_map_blob_sz() { return 466; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::MonoConfigRequest>::type_info_blob_sz() { return 100; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::MonoConfigRequest>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0x8b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf1, 0x57, 0x8e, 0x3c, 0x8f, 0x36, 0xbf, 0x5e, 0xf5, 0x18, 0xc4, 0xc0, 0xf8, 0x02,
+        0x61, 0x00, 0x73, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63, 0x00, 0x00, 0x00,
+        0x06, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0xf6, 0x8d, 0x2c, 0x36, 0x0b, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x08, 0xa1, 0xbe, 0xb8, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x07, 0x25, 0xa2, 0x21, 0xa8, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x91, 0xac, 0x22,
+        0x52, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x78, 0x96, 0x44, 0xb7, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x97, 0x1b, 0x4e, 0xfd, 0x00, 0x16, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf2, 0x13,
+        0x12, 0xf6, 0x95, 0xbb, 0x86, 0x27, 0xc4, 0xe5, 0x1f, 0xc6, 0xe7, 0xbd, 0x33, 0x00, 0xfe, 0x00, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00,
+        0x2d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x25, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d,
+        0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x4d, 0x6f, 0x6e, 0x6f, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x65, 0x71,
+        0x75, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0xc2, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x72, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x6d, 0x6f,
+        0x6e, 0x6f, 0x5f, 0x77, 0x69, 0x64, 0x74, 0x68, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x07, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x6d, 0x6f, 0x6e, 0x6f, 0x5f, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x09, 0x00, 0x00, 0x00, 0x6d, 0x6f, 0x6e, 0x6f,
+        0x5f, 0x66, 0x70, 0x73, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x12, 0x00,
+        0x00, 0x00, 0x6d, 0x6f, 0x6e, 0x6f, 0x5f, 0x6a, 0x70, 0x65, 0x67, 0x5f, 0x71, 0x75, 0x61, 0x6c, 0x69, 0x74, 0x79, 0x00, 0x00, 0x00,
+        0x1a, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65,
+        0x5f, 0x6d, 0x6f, 0x6e, 0x6f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf2, 0x13, 0x12, 0xf6,
+        0x95, 0xbb, 0x86, 0x27, 0xc4, 0xe5, 0x1f, 0xc6, 0xe7, 0xbd, 0x33, 0xf1, 0x57, 0x8e, 0x3c, 0x8f, 0x36, 0xbf, 0x5e, 0xf5, 0x18, 0xc4,
+        0xc0, 0xf8, 0x02, 0x61,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::MonoConfigRequest>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0x60, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
+        0xf1, 0x57, 0x8e, 0x3c, 0x8f, 0x36, 0xbf, 0x5e, 0xf5, 0x18, 0xc4, 0xc0, 0xf8, 0x02, 0x61, 0x00, 0x77, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00,
+        0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x13, 0x12, 0xf6, 0x95, 0xbb, 0x86, 0x27, 0xc4, 0xe5, 0x1f, 0xc6,
+        0xe7, 0xbd, 0x33, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::Vec3f>::getTypeName() { return "igris_c::msg::dds::Vec3f"; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::Vec3f>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::Vec3f>::type_map_blob_sz() { return 230; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::Vec3f>::type_info_blob_sz() { return 100; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::Vec3f>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0x46, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe,
+        0xae, 0x27, 0x00, 0x2e, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1e, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00,
+        0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0x8d, 0x77, 0x7f, 0x38, 0x00, 0x00, 0x6f, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x57, 0x00, 0x00, 0x00, 0xf2,
+        0x51, 0x01, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f,
+        0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x56, 0x65, 0x63, 0x33, 0x66, 0x00, 0x00, 0x00,
+        0x00, 0x27, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x64, 0x61, 0x74, 0x61, 0x00,
+        0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13,
+        0xee, 0x60, 0xe1, 0x4c, 0xad, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::Vec3f>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0x60, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
+        0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x00, 0x32, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00,
+        0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60,
+        0xe1, 0x4c, 0xad, 0x00, 0x5b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::Vec4f>::getTypeName() { return "igris_c::msg::dds::Vec4f"; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::Vec4f>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::Vec4f>::type_map_blob_sz() { return 230; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::Vec4f>::type_info_blob_sz() { return 100; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::Vec4f>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0x46, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7,
+        0xaf, 0x77, 0x00, 0x2e, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1e, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00,
+        0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x09, 0x8d, 0x77, 0x7f, 0x38, 0x00, 0x00, 0x6f, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0x00, 0x57, 0x00, 0x00, 0x00, 0xf2,
+        0x51, 0x01, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f,
+        0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x56, 0x65, 0x63, 0x34, 0x66, 0x00, 0x00, 0x00,
+        0x00, 0x27, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x09, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x64, 0x61, 0x74, 0x61, 0x00,
+        0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36,
+        0xff, 0x5e, 0x93, 0x70, 0x52, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::Vec4f>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0x60, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
+        0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x00, 0x32, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40, 0x28, 0x00, 0x00, 0x00,
+        0x24, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e,
+        0x93, 0x70, 0x52, 0x00, 0x5b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::QuestController>::getTypeName() {
+    return "igris_c::msg::dds::QuestController";
+}
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::QuestController>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::QuestController>::type_map_blob_sz() { return 1550; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::QuestController>::type_info_blob_sz() { return 196; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::QuestController>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0x12, 0x02, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0xf1, 0x28, 0x51, 0xe5, 0x7f, 0x79, 0x9d, 0xb0, 0xec, 0x09, 0x17, 0x59, 0x78, 0xea,
+        0x3d, 0x00, 0x73, 0x01, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63, 0x01, 0x00, 0x00,
+        0x10, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6,
+        0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x47, 0x57, 0xfe, 0x07, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x75, 0xb9, 0xaa, 0xa0, 0x00,
+        0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69,
+        0xfb, 0x0e, 0xfe, 0xae, 0x27, 0xbc, 0x64, 0x6b, 0xe3, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0xe1, 0xa2, 0x94, 0xf3, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00,
+        0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0x58, 0x1e, 0xf3, 0x6e,
+        0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x02, 0x09, 0x2e, 0xd6, 0x98, 0x33, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x09, 0xd2, 0x99, 0xd3, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x09, 0xbe, 0x4d, 0x26, 0x0c, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00, 0x09, 0x97, 0xe9, 0xce,
+        0xa2, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x95, 0xe4, 0xbb, 0x3f, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x0a, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x42, 0xb9, 0x44, 0xd2, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x01, 0x76, 0x50, 0x60, 0x56, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x19, 0x19, 0xbc, 0x37, 0x00,
+        0x0b, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x47, 0x52, 0x6b, 0x8e, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0e, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x01, 0xa1, 0x91, 0xc7, 0x83, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0xa1,
+        0x5a, 0x2a, 0x73, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x00, 0x00, 0x2e, 0x00,
+        0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09,
+        0x8d, 0x77, 0x7f, 0x38, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x00, 0x00, 0x00,
+        0x2e, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x04, 0x09, 0x8d, 0x77, 0x7f, 0x38, 0x00, 0x00, 0x8f, 0x03, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0xf2, 0xcf, 0xcf, 0xab, 0xf4, 0x5e,
+        0x73, 0xf5, 0x78, 0xf6, 0xb6, 0x4c, 0x92, 0x4a, 0x76, 0x00, 0xa1, 0x02, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x2b, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x23, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a,
+        0x64, 0x64, 0x73, 0x3a, 0x3a, 0x51, 0x75, 0x65, 0x73, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x00, 0x00,
+        0x69, 0x02, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x16, 0xc8, 0xb2,
+        0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x70, 0x6f, 0x73, 0x69,
+        0x74, 0x69, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x3b, 0xb0, 0x63,
+        0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x71, 0x75, 0x61, 0x74,
+        0x65, 0x72, 0x6e, 0x69, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00,
+        0x65, 0x75, 0x6c, 0x65, 0x72, 0x00, 0x00, 0x00, 0x2a, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x6c, 0x69, 0x6e, 0x65, 0x61, 0x72, 0x5f, 0x76,
+        0x65, 0x6c, 0x6f, 0x63, 0x69, 0x74, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x61, 0x6e, 0x67, 0x75,
+        0x6c, 0x61, 0x72, 0x5f, 0x76, 0x65, 0x6c, 0x6f, 0x63, 0x69, 0x74, 0x79, 0x00, 0x00, 0x00, 0x00, 0x23, 0x00, 0x00, 0x00, 0x05, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x09, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00,
+        0x6a, 0x6f, 0x79, 0x73, 0x74, 0x69, 0x63, 0x6b, 0x00, 0x00, 0x00, 0x00, 0x23, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x09, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x74, 0x6f, 0x75, 0x63,
+        0x68, 0x70, 0x61, 0x64, 0x00, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x00, 0x09, 0x00, 0x0e, 0x00,
+        0x00, 0x00, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x5f, 0x74, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00,
+        0x08, 0x00, 0x00, 0x00, 0x01, 0x00, 0x09, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x68, 0x61, 0x6e, 0x64, 0x5f, 0x74, 0x72, 0x69, 0x67, 0x67,
+        0x65, 0x72, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x62, 0x75, 0x74, 0x74, 0x6f, 0x6e, 0x5f, 0x6f, 0x6e, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x0a, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x62, 0x75, 0x74, 0x74, 0x6f, 0x6e, 0x5f, 0x74, 0x77, 0x6f, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x62, 0x75,
+        0x74, 0x74, 0x6f, 0x6e, 0x5f, 0x74, 0x68, 0x72, 0x65, 0x65, 0x00, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x01, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x62, 0x75, 0x74, 0x74, 0x6f, 0x6e, 0x5f, 0x66, 0x6f, 0x75, 0x72, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x6a, 0x6f, 0x79, 0x73,
+        0x74, 0x69, 0x63, 0x6b, 0x5f, 0x63, 0x6c, 0x69, 0x63, 0x6b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00, 0x0e, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x14, 0x00, 0x00, 0x00, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x5f, 0x74, 0x72, 0x69, 0x67, 0x67, 0x65,
+        0x72, 0x5f, 0x74, 0x6f, 0x75, 0x63, 0x68, 0x00, 0x00, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x01, 0x00, 0x13, 0x00, 0x00, 0x00, 0x68, 0x61, 0x6e, 0x64, 0x5f, 0x74, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x5f, 0x74, 0x6f, 0x75,
+        0x63, 0x68, 0x00, 0x00, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x57, 0x00,
+        0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69,
+        0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x56, 0x65, 0x63, 0x33, 0x66, 0x00, 0x00,
+        0x00, 0x00, 0x27, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00,
+        0x00, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0x00, 0x00, 0x57, 0x00, 0x00, 0x00,
+        0xf2, 0x51, 0x01, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f,
+        0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x56, 0x65, 0x63, 0x34, 0x66, 0x00, 0x00, 0x00, 0x00,
+        0x27, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x09, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0x00,
+        0x5e, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0xf2, 0xcf, 0xcf, 0xab, 0xf4, 0x5e, 0x73, 0xf5, 0x78, 0xf6, 0xb6, 0x4c, 0x92, 0x4a,
+        0x76, 0xf1, 0x28, 0x51, 0xe5, 0x7f, 0x79, 0x9d, 0xb0, 0xec, 0x09, 0x17, 0x59, 0x78, 0xea, 0x3d, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3,
+        0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe,
+        0xae, 0x27, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0xf1, 0xc0, 0x28, 0x3a, 0x4d,
+        0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::QuestController>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0xc0, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0x58, 0x00, 0x00, 0x00, 0x54, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0x28,
+        0x51, 0xe5, 0x7f, 0x79, 0x9d, 0xb0, 0xec, 0x09, 0x17, 0x59, 0x78, 0xea, 0x3d, 0x00, 0x77, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+        0x34, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69,
+        0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x00, 0x32, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa,
+        0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x00, 0x32, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40, 0x58, 0x00, 0x00, 0x00, 0x54, 0x00,
+        0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0xcf, 0xcf, 0xab, 0xf4, 0x5e, 0x73, 0xf5, 0x78, 0xf6, 0xb6, 0x4c, 0x92, 0x4a, 0x76, 0x00,
+        0xa5, 0x02, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x16,
+        0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x5b, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
+        0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0x00, 0x5b, 0x00, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::QuestHand>::getTypeName() { return "igris_c::msg::dds::QuestHand"; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::QuestHand>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::QuestHand>::type_map_blob_sz() { return 1418; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::QuestHand>::type_info_blob_sz() { return 196; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::QuestHand>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0xfe, 0x01, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0xf1, 0xb6, 0x0d, 0xc7, 0xa6, 0x77, 0x43, 0xc6, 0x52, 0x34, 0x42, 0x08, 0x8f, 0x51,
+        0xad, 0x00, 0x5e, 0x01, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4e, 0x01, 0x00, 0x00,
+        0x0b, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6,
+        0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x47, 0x57, 0xfe, 0x07, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x75, 0xb9, 0xaa, 0xa0, 0x00,
+        0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69,
+        0xfb, 0x0e, 0xfe, 0xae, 0x27, 0xbc, 0x64, 0x6b, 0xe3, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x09, 0x8b, 0xf9, 0x1b, 0x0f, 0x00, 0x16, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x05, 0x01, 0x01, 0xa7, 0x1c, 0xcd, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09, 0x4b, 0xe2, 0xb1, 0x3e, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00,
+        0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09, 0xd0, 0x6a, 0xed, 0xea,
+        0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x05, 0x01, 0xe8, 0xbd, 0x76, 0xee, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf1, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27,
+        0x26, 0x7b, 0xcd, 0x0f, 0x24, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf1, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x05, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x42, 0xc7, 0xe7, 0xe0,
+        0x16, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09,
+        0x35, 0x1b, 0xff, 0x41, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x00, 0x00, 0x00,
+        0x2e, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x03, 0x09, 0x8d, 0x77, 0x7f, 0x38, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x00,
+        0x00, 0x00, 0x2e, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x04, 0x09, 0x8d, 0x77, 0x7f, 0x38, 0x00, 0x00, 0x1f, 0x03, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0xf2, 0x91, 0x0c, 0x42,
+        0xe6, 0x99, 0xdb, 0x76, 0xf8, 0x0c, 0x9e, 0x7e, 0x6e, 0xb0, 0x15, 0x00, 0x30, 0x02, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x25, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67,
+        0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x51, 0x75, 0x65, 0x73, 0x74, 0x48, 0x61, 0x6e, 0x64, 0x00, 0x00, 0x00, 0x00, 0xfc, 0x01,
+        0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3,
+        0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69,
+        0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f,
+        0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x71, 0x75, 0x61, 0x74, 0x65, 0x72,
+        0x6e, 0x69, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x16,
+        0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x65, 0x75,
+        0x6c, 0x65, 0x72, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x09, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x63, 0x6f, 0x6e, 0x66, 0x69, 0x64, 0x65, 0x6e, 0x63, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x04, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00,
+        0x70, 0x69, 0x6e, 0x63, 0x68, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x70, 0x69, 0x6e, 0x63, 0x68, 0x5f, 0x73, 0x74,
+        0x72, 0x65, 0x6e, 0x67, 0x74, 0x68, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x66, 0x69, 0x6e, 0x67,
+        0x65, 0x72, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x64, 0x65, 0x6e, 0x63, 0x65, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x07, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x01, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00,
+        0x74, 0x69, 0x70, 0x5f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x00, 0x00, 0x00, 0x33, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x90, 0xf2, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee,
+        0x60, 0xe1, 0x4c, 0xad, 0x0d, 0x00, 0x00, 0x00, 0x74, 0x69, 0x70, 0x5f, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x00, 0x00,
+        0x00, 0x00, 0x35, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf2, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x05, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0x0f, 0x00, 0x00, 0x00, 0x74, 0x69,
+        0x70, 0x5f, 0x71, 0x75, 0x61, 0x74, 0x65, 0x72, 0x6e, 0x69, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00,
+        0x0a, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09, 0x00, 0x00, 0x16, 0x00,
+        0x00, 0x00, 0x74, 0x69, 0x70, 0x5f, 0x74, 0x6f, 0x5f, 0x74, 0x68, 0x75, 0x6d, 0x62, 0x5f, 0x64, 0x69, 0x73, 0x74, 0x61, 0x6e, 0x63,
+        0x65, 0x00, 0x00, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x57, 0x00,
+        0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69,
+        0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x56, 0x65, 0x63, 0x33, 0x66, 0x00, 0x00,
+        0x00, 0x00, 0x27, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00,
+        0x00, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0x00, 0x00, 0x57, 0x00, 0x00, 0x00,
+        0xf2, 0x51, 0x01, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f,
+        0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x56, 0x65, 0x63, 0x34, 0x66, 0x00, 0x00, 0x00, 0x00,
+        0x27, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x09, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0x00,
+        0x5e, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0xf2, 0x91, 0x0c, 0x42, 0xe6, 0x99, 0xdb, 0x76, 0xf8, 0x0c, 0x9e, 0x7e, 0x6e, 0xb0,
+        0x15, 0xf1, 0xb6, 0x0d, 0xc7, 0xa6, 0x77, 0x43, 0xc6, 0x52, 0x34, 0x42, 0x08, 0x8f, 0x51, 0xad, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3,
+        0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe,
+        0xae, 0x27, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0xf1, 0xc0, 0x28, 0x3a, 0x4d,
+        0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::QuestHand>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0xc0, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0x58, 0x00, 0x00, 0x00, 0x54, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0xb6,
+        0x0d, 0xc7, 0xa6, 0x77, 0x43, 0xc6, 0x52, 0x34, 0x42, 0x08, 0x8f, 0x51, 0xad, 0x00, 0x62, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+        0x34, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69,
+        0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x00, 0x32, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa,
+        0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x00, 0x32, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40, 0x58, 0x00, 0x00, 0x00, 0x54, 0x00,
+        0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x91, 0x0c, 0x42, 0xe6, 0x99, 0xdb, 0x76, 0xf8, 0x0c, 0x9e, 0x7e, 0x6e, 0xb0, 0x15, 0x00,
+        0x34, 0x02, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x16,
+        0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x5b, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00,
+        0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0x00, 0x5b, 0x00, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
+template <> constexpr const char *TopicTraits<::igris_c::msg::dds::QuestMessage>::getTypeName() {
+    return "igris_c::msg::dds::QuestMessage";
+}
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::QuestMessage>::isSelfContained() { return false; }
+
+template <> constexpr bool TopicTraits<::igris_c::msg::dds::QuestMessage>::isKeyless() { return true; }
+
+#ifdef DDSCXX_HAS_TYPE_DISCOVERY
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::QuestMessage>::type_map_blob_sz() { return 3624; }
+template <> constexpr unsigned int TopicTraits<::igris_c::msg::dds::QuestMessage>::type_info_blob_sz() { return 340; }
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::QuestMessage>::type_map_blob() {
+    static const uint8_t blob[] = {
+        0x16, 0x05, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0xf1, 0x28, 0xb2, 0xb9, 0x39, 0x39, 0xd7, 0x09, 0x0d, 0x1d, 0x84, 0xf3, 0x2b, 0x6a,
+        0x44, 0x00, 0x13, 0x01, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x01, 0x00, 0x00,
+        0x09, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85,
+        0xd2, 0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7, 0x09, 0x9f, 0xb9, 0x95, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x04, 0x6d, 0x30, 0x3f, 0x74, 0x00, 0x19, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x70, 0x90, 0xe6,
+        0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x13, 0xd2, 0x80, 0x9d, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00,
+        0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x45,
+        0xd9, 0x37, 0xa9, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42,
+        0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x60, 0x16, 0x3c, 0xe8, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x05, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x90, 0xf1, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0xf1, 0x28, 0x51, 0xe5, 0x7f, 0x79, 0x9d,
+        0xb0, 0xec, 0x09, 0x17, 0x59, 0x78, 0xea, 0x3d, 0x59, 0x4c, 0x10, 0x3f, 0x24, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x90, 0xf1, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0xf1, 0xb6, 0x0d, 0xc7, 0xa6, 0x77, 0x43, 0xc6, 0x52, 0x34, 0x42,
+        0x08, 0x8f, 0x51, 0xad, 0x57, 0x3c, 0xe5, 0x96, 0x0c, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x95, 0x7b,
+        0x52, 0x7b, 0x0b, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00, 0x09, 0x20, 0xc1, 0xd1, 0x87, 0xf1, 0x62, 0xea, 0xb5, 0x55,
+        0x8d, 0x3f, 0x85, 0xd2, 0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7, 0x00, 0x00, 0x54, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x08, 0xe0, 0x68, 0xc2, 0xde, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x05, 0x74, 0x45, 0x9c,
+        0xa3, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0xe2, 0x04, 0x64, 0xd5, 0x00, 0x0c, 0x00, 0x00, 0x00,
+        0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x4b, 0xb3, 0x9c, 0x5c, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69,
+        0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x00, 0x2e, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x1e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0x8d, 0x77, 0x7f, 0x38, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0,
+        0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x00, 0x00, 0x00, 0x2e, 0x00, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x09, 0x8d, 0x77, 0x7f, 0x38, 0xf1, 0x28, 0x51, 0xe5, 0x7f, 0x79, 0x9d, 0xb0,
+        0xec, 0x09, 0x17, 0x59, 0x78, 0xea, 0x3d, 0x00, 0x00, 0x00, 0x73, 0x01, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x63, 0x01, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x47, 0x57, 0xfe, 0x07, 0x00, 0x00, 0x00,
+        0x19, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e,
+        0xa7, 0xaf, 0x77, 0x75, 0xb9, 0xaa, 0xa0, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x70,
+        0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0xbc, 0x64, 0x6b, 0xe3, 0x00, 0x00, 0x00, 0x16, 0x00,
+        0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0xe1, 0xa2,
+        0x94, 0xf3, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x03, 0x09, 0x58, 0x1e, 0xf3, 0x6e, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x09, 0x2e, 0xd6, 0x98, 0x33, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x06, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x09, 0xd2, 0x99, 0xd3, 0x00, 0x00, 0x00,
+        0x0b, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x00, 0x09, 0xbe, 0x4d, 0x26, 0x0c, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x08, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x09, 0x97, 0xe9, 0xce, 0xa2, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x95,
+        0xe4, 0xbb, 0x3f, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x42, 0xb9, 0x44, 0xd2, 0x00, 0x0b, 0x00,
+        0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x76, 0x50, 0x60, 0x56, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x01, 0x19, 0x19, 0xbc, 0x37, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x47, 0x52, 0x6b,
+        0x8e, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0xa1, 0x91, 0xc7, 0x83, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x0f, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0xa1, 0x5a, 0x2a, 0x73, 0xf1, 0xb6, 0x0d, 0xc7, 0xa6, 0x77, 0x43, 0xc6, 0x52, 0x34, 0x42,
+        0x08, 0x8f, 0x51, 0xad, 0x00, 0x00, 0x5e, 0x01, 0x00, 0x00, 0xf1, 0x51, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x4e, 0x01, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x70, 0x90, 0xe6,
+        0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x47, 0x57, 0xfe, 0x07, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x75,
+        0xb9, 0xaa, 0xa0, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42,
+        0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0xbc, 0x64, 0x6b, 0xe3, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x03, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x09, 0x8b, 0xf9, 0x1b, 0x0f, 0x00, 0x16, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x01, 0x01, 0xa7, 0x1c, 0xcd, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x05, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09, 0x4b, 0xe2, 0xb1, 0x3e, 0x00, 0x00,
+        0x16, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09,
+        0xd0, 0x6a, 0xed, 0xea, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x05, 0x01, 0xe8, 0xbd, 0x76, 0xee, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x90, 0xf1, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb,
+        0x0e, 0xfe, 0xae, 0x27, 0x26, 0x7b, 0xcd, 0x0f, 0x24, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf1, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77,
+        0x42, 0xc7, 0xe7, 0xe0, 0x16, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x05, 0x09, 0x35, 0x1b, 0xff, 0x41, 0x00, 0x00, 0x4c, 0x08, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0xf2, 0xaf, 0xc7, 0x66,
+        0xc2, 0xdc, 0x52, 0x2a, 0x5e, 0x48, 0x61, 0x08, 0xbf, 0x15, 0xd5, 0x00, 0xb2, 0x01, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x28, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67,
+        0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x51, 0x75, 0x65, 0x73, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x7e, 0x01,
+        0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f,
+        0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x04, 0x00, 0x0e, 0x00, 0x00, 0x00,
+        0x74, 0x72, 0x61, 0x63, 0x6b, 0x69, 0x6e, 0x67, 0x5f, 0x6d, 0x6f, 0x64, 0x65, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x02, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x00, 0x00,
+        0x0e, 0x00, 0x00, 0x00, 0x68, 0x65, 0x61, 0x64, 0x5f, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x2e, 0x00,
+        0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70,
+        0x52, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x68, 0x65, 0x61, 0x64, 0x5f, 0x71, 0x75, 0x61, 0x74, 0x65, 0x72, 0x6e, 0x69, 0x6f,
+        0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3,
+        0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x68, 0x65, 0x61, 0x64, 0x5f, 0x65,
+        0x75, 0x6c, 0x65, 0x72, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf2,
+        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0xf2, 0xcf, 0xcf, 0xab, 0xf4, 0x5e, 0x73, 0xf5, 0x78, 0xf6, 0xb6, 0x4c, 0x92,
+        0x4a, 0x76, 0x0b, 0x00, 0x00, 0x00, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x2b, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf2, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0xf2,
+        0x91, 0x0c, 0x42, 0xe6, 0x99, 0xdb, 0x76, 0xf8, 0x0c, 0x9e, 0x7e, 0x6e, 0xb0, 0x15, 0x05, 0x00, 0x00, 0x00, 0x68, 0x61, 0x6e, 0x64,
+        0x00, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x03, 0x00, 0x00, 0x00, 0x69, 0x70,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00, 0x09, 0x00, 0x08, 0x00, 0x00, 0x00,
+        0x62, 0x61, 0x74, 0x74, 0x65, 0x72, 0x79, 0x00, 0x00, 0x00, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88,
+        0xf1, 0x7f, 0x7f, 0x00, 0x00, 0x00, 0x9b, 0x00, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x1a, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a,
+        0x3a, 0x48, 0x65, 0x61, 0x64, 0x65, 0x72, 0x00, 0x00, 0x00, 0x6b, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0x00, 0x04, 0x00, 0x00, 0x00, 0x73, 0x65, 0x71, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x05, 0x00, 0x04, 0x00, 0x00, 0x00, 0x73, 0x65, 0x63, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x16, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x07, 0x00, 0x08, 0x00, 0x00, 0x00, 0x6e, 0x61, 0x6e, 0x6f, 0x73, 0x65,
+        0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x70, 0x00, 0x09, 0x00, 0x00, 0x00,
+        0x66, 0x72, 0x61, 0x6d, 0x65, 0x5f, 0x69, 0x64, 0x00, 0x00, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee,
+        0x60, 0xe1, 0x4c, 0xad, 0x00, 0x00, 0x57, 0x00, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x19, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a,
+        0x3a, 0x56, 0x65, 0x63, 0x33, 0x66, 0x00, 0x00, 0x00, 0x00, 0x27, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09, 0x00, 0x00, 0x05, 0x00,
+        0x00, 0x00, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93,
+        0x70, 0x52, 0x00, 0x00, 0x57, 0x00, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00,
+        0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x56,
+        0x65, 0x63, 0x34, 0x66, 0x00, 0x00, 0x00, 0x00, 0x27, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x09, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
+        0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0xf2, 0xcf, 0xcf, 0xab, 0xf4, 0x5e, 0x73, 0xf5, 0x78, 0xf6, 0xb6, 0x4c, 0x92, 0x4a, 0x76,
+        0x00, 0x00, 0xa1, 0x02, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x2b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x23, 0x00, 0x00, 0x00,
+        0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67, 0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x51, 0x75, 0x65,
+        0x73, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x00, 0x00, 0x69, 0x02, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00,
+        0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60,
+        0xe1, 0x4c, 0xad, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00,
+        0x29, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e,
+        0x93, 0x70, 0x52, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x71, 0x75, 0x61, 0x74, 0x65, 0x72, 0x6e, 0x69, 0x6f, 0x6e, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32,
+        0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x65, 0x75, 0x6c, 0x65, 0x72, 0x00, 0x00, 0x00,
+        0x2a, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x09,
+        0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x6c, 0x69, 0x6e, 0x65, 0x61, 0x72, 0x5f, 0x76, 0x65, 0x6c, 0x6f, 0x63, 0x69, 0x74, 0x79, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x03, 0x09, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x61, 0x6e, 0x67, 0x75, 0x6c, 0x61, 0x72, 0x5f, 0x76, 0x65, 0x6c, 0x6f,
+        0x63, 0x69, 0x74, 0x79, 0x00, 0x00, 0x00, 0x00, 0x23, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x09, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x6a, 0x6f, 0x79, 0x73, 0x74, 0x69, 0x63, 0x6b,
+        0x00, 0x00, 0x00, 0x00, 0x23, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x00, 0x00, 0x02, 0x09, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x74, 0x6f, 0x75, 0x63, 0x68, 0x70, 0x61, 0x64, 0x00, 0x00, 0x00, 0x00,
+        0x1c, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, 0x00, 0x09, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x5f,
+        0x74, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00, 0x09, 0x00,
+        0x0d, 0x00, 0x00, 0x00, 0x68, 0x61, 0x6e, 0x64, 0x5f, 0x74, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00,
+        0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x62, 0x75, 0x74, 0x74, 0x6f, 0x6e, 0x5f, 0x6f,
+        0x6e, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0b, 0x00,
+        0x00, 0x00, 0x62, 0x75, 0x74, 0x74, 0x6f, 0x6e, 0x5f, 0x74, 0x77, 0x6f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00,
+        0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x62, 0x75, 0x74, 0x74, 0x6f, 0x6e, 0x5f, 0x74, 0x68, 0x72,
+        0x65, 0x65, 0x00, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0c, 0x00, 0x00, 0x00,
+        0x62, 0x75, 0x74, 0x74, 0x6f, 0x6e, 0x5f, 0x66, 0x6f, 0x75, 0x72, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x0d, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x6a, 0x6f, 0x79, 0x73, 0x74, 0x69, 0x63, 0x6b, 0x5f, 0x63, 0x6c, 0x69,
+        0x63, 0x6b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x14, 0x00,
+        0x00, 0x00, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x5f, 0x74, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x5f, 0x74, 0x6f, 0x75, 0x63, 0x68, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x13, 0x00, 0x00, 0x00, 0x68, 0x61,
+        0x6e, 0x64, 0x5f, 0x74, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x5f, 0x74, 0x6f, 0x75, 0x63, 0x68, 0x00, 0x00, 0x00, 0xf2, 0x91, 0x0c,
+        0x42, 0xe6, 0x99, 0xdb, 0x76, 0xf8, 0x0c, 0x9e, 0x7e, 0x6e, 0xb0, 0x15, 0x30, 0x02, 0x00, 0x00, 0xf2, 0x51, 0x01, 0x00, 0x25, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x00, 0x00, 0x69, 0x67, 0x72, 0x69, 0x73, 0x5f, 0x63, 0x3a, 0x3a, 0x6d, 0x73, 0x67,
+        0x3a, 0x3a, 0x64, 0x64, 0x73, 0x3a, 0x3a, 0x51, 0x75, 0x65, 0x73, 0x74, 0x48, 0x61, 0x6e, 0x64, 0x00, 0x00, 0x00, 0x00, 0xfc, 0x01,
+        0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3,
+        0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69,
+        0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f,
+        0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x71, 0x75, 0x61, 0x74, 0x65, 0x72,
+        0x6e, 0x69, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0xf2, 0x16,
+        0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x65, 0x75,
+        0x6c, 0x65, 0x72, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x09, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x63, 0x6f, 0x6e, 0x66, 0x69, 0x64, 0x65, 0x6e, 0x63, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x04, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00,
+        0x70, 0x69, 0x6e, 0x63, 0x68, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x70, 0x69, 0x6e, 0x63, 0x68, 0x5f, 0x73, 0x74,
+        0x72, 0x65, 0x6e, 0x67, 0x74, 0x68, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00, 0x66, 0x69, 0x6e, 0x67,
+        0x65, 0x72, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x64, 0x65, 0x6e, 0x63, 0x65, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x07, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x01, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00,
+        0x74, 0x69, 0x70, 0x5f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x00, 0x00, 0x00, 0x33, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00,
+        0x90, 0xf2, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee,
+        0x60, 0xe1, 0x4c, 0xad, 0x0d, 0x00, 0x00, 0x00, 0x74, 0x69, 0x70, 0x5f, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x00, 0x00,
+        0x00, 0x00, 0x35, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf2, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x05, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0x0f, 0x00, 0x00, 0x00, 0x74, 0x69,
+        0x70, 0x5f, 0x71, 0x75, 0x61, 0x74, 0x65, 0x72, 0x6e, 0x69, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00,
+        0x0a, 0x00, 0x00, 0x00, 0x01, 0x00, 0x90, 0xf3, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x09, 0x00, 0x00, 0x16, 0x00,
+        0x00, 0x00, 0x74, 0x69, 0x70, 0x5f, 0x74, 0x6f, 0x5f, 0x74, 0x68, 0x75, 0x6d, 0x62, 0x5f, 0x64, 0x69, 0x73, 0x74, 0x61, 0x6e, 0x63,
+        0x65, 0x00, 0x00, 0x00, 0xb8, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0xf2, 0xaf, 0xc7, 0x66, 0xc2, 0xdc, 0x52, 0x2a, 0x5e, 0x48,
+        0x61, 0x08, 0xbf, 0x15, 0xd5, 0xf1, 0x28, 0xb2, 0xb9, 0x39, 0x39, 0xd7, 0x09, 0x0d, 0x1d, 0x84, 0xf3, 0x2b, 0x6a, 0x44, 0xf2, 0x5a,
+        0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85, 0xd2,
+        0xcd, 0x90, 0x0a, 0x36, 0xce, 0xa7, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0xf1,
+        0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6, 0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95,
+        0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70, 0x52, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a, 0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77,
+        0xf2, 0xcf, 0xcf, 0xab, 0xf4, 0x5e, 0x73, 0xf5, 0x78, 0xf6, 0xb6, 0x4c, 0x92, 0x4a, 0x76, 0xf1, 0x28, 0x51, 0xe5, 0x7f, 0x79, 0x9d,
+        0xb0, 0xec, 0x09, 0x17, 0x59, 0x78, 0xea, 0x3d, 0xf2, 0x91, 0x0c, 0x42, 0xe6, 0x99, 0xdb, 0x76, 0xf8, 0x0c, 0x9e, 0x7e, 0x6e, 0xb0,
+        0x15, 0xf1, 0xb6, 0x0d, 0xc7, 0xa6, 0x77, 0x43, 0xc6, 0x52, 0x34, 0x42, 0x08, 0x8f, 0x51, 0xad,
+    };
+    return blob;
+}
+template <> inline const uint8_t *TopicTraits<::igris_c::msg::dds::QuestMessage>::type_info_blob() {
+    static const uint8_t blob[] = {
+        0x50, 0x01, 0x00, 0x00, 0x01, 0x10, 0x00, 0x40, 0xa0, 0x00, 0x00, 0x00, 0x9c, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0x28,
+        0xb2, 0xb9, 0x39, 0x39, 0xd7, 0x09, 0x0d, 0x1d, 0x84, 0xf3, 0x2b, 0x6a, 0x44, 0x00, 0x17, 0x01, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
+        0x7c, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0x62, 0xea, 0xb5, 0x55, 0x8d, 0x3f, 0x85, 0xd2, 0xcd,
+        0x90, 0x0a, 0x36, 0xce, 0xa7, 0x00, 0x58, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0x70, 0x90, 0xe6, 0x2d, 0x42, 0xad, 0xa6,
+        0x8f, 0x69, 0xfb, 0x0e, 0xfe, 0xae, 0x27, 0x00, 0x32, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0xc0, 0x28, 0x3a, 0x4d, 0x1a,
+        0xc0, 0xaa, 0x81, 0xc0, 0x88, 0x6e, 0xa7, 0xaf, 0x77, 0x00, 0x32, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0x28, 0x51, 0xe5,
+        0x7f, 0x79, 0x9d, 0xb0, 0xec, 0x09, 0x17, 0x59, 0x78, 0xea, 0x3d, 0x00, 0x77, 0x01, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf1, 0xb6,
+        0x0d, 0xc7, 0xa6, 0x77, 0x43, 0xc6, 0x52, 0x34, 0x42, 0x08, 0x8f, 0x51, 0xad, 0x00, 0x62, 0x01, 0x00, 0x00, 0x02, 0x10, 0x00, 0x40,
+        0xa0, 0x00, 0x00, 0x00, 0x9c, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0xaf, 0xc7, 0x66, 0xc2, 0xdc, 0x52, 0x2a, 0x5e, 0x48,
+        0x61, 0x08, 0xbf, 0x15, 0xd5, 0x00, 0xb6, 0x01, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x7c, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
+        0x14, 0x00, 0x00, 0x00, 0xf2, 0x5a, 0x22, 0x34, 0xb7, 0x5f, 0xdb, 0x5e, 0x5b, 0x14, 0x35, 0x88, 0xf1, 0x7f, 0x7f, 0x00, 0x9f, 0x00,
+        0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x16, 0xc8, 0xb2, 0x4a, 0xd3, 0xf1, 0x32, 0x10, 0x13, 0xee, 0x60, 0xe1, 0x4c, 0xad, 0x00,
+        0x5b, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x3b, 0xb0, 0x63, 0x06, 0x0f, 0x60, 0x95, 0xd6, 0x36, 0xff, 0x5e, 0x93, 0x70,
+        0x52, 0x00, 0x5b, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0xcf, 0xcf, 0xab, 0xf4, 0x5e, 0x73, 0xf5, 0x78, 0xf6, 0xb6, 0x4c,
+        0x92, 0x4a, 0x76, 0x00, 0xa5, 0x02, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0xf2, 0x91, 0x0c, 0x42, 0xe6, 0x99, 0xdb, 0x76, 0xf8, 0x0c,
+        0x9e, 0x7e, 0x6e, 0xb0, 0x15, 0x00, 0x34, 0x02, 0x00, 0x00,
+    };
+    return blob;
+}
+#endif  // DDSCXX_HAS_TYPE_DISCOVERY
+
 }  // namespace topic
 }  // namespace cyclonedds
 }  // namespace eclipse
@@ -1447,6 +2801,58 @@ template <> struct topic_type_name<::igris_c::msg::dds::ServiceResponse> {
     static std::string value() { return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::ServiceResponse>::getTypeName(); }
 };
 
+template <> struct topic_type_name<::igris_c::msg::dds::Header> {
+    static std::string value() { return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::Header>::getTypeName(); }
+};
+
+template <> struct topic_type_name<::igris_c::msg::dds::ImageFrame> {
+    static std::string value() { return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::ImageFrame>::getTypeName(); }
+};
+
+template <> struct topic_type_name<::igris_c::msg::dds::CompressedMessage> {
+    static std::string value() {
+        return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::CompressedMessage>::getTypeName();
+    }
+};
+
+template <> struct topic_type_name<::igris_c::msg::dds::StereoConfigRequest> {
+    static std::string value() {
+        return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::StereoConfigRequest>::getTypeName();
+    }
+};
+
+template <> struct topic_type_name<::igris_c::msg::dds::RealsenseConfigRequest> {
+    static std::string value() {
+        return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::RealsenseConfigRequest>::getTypeName();
+    }
+};
+
+template <> struct topic_type_name<::igris_c::msg::dds::MonoConfigRequest> {
+    static std::string value() {
+        return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::MonoConfigRequest>::getTypeName();
+    }
+};
+
+template <> struct topic_type_name<::igris_c::msg::dds::Vec3f> {
+    static std::string value() { return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::Vec3f>::getTypeName(); }
+};
+
+template <> struct topic_type_name<::igris_c::msg::dds::Vec4f> {
+    static std::string value() { return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::Vec4f>::getTypeName(); }
+};
+
+template <> struct topic_type_name<::igris_c::msg::dds::QuestController> {
+    static std::string value() { return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::QuestController>::getTypeName(); }
+};
+
+template <> struct topic_type_name<::igris_c::msg::dds::QuestHand> {
+    static std::string value() { return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::QuestHand>::getTypeName(); }
+};
+
+template <> struct topic_type_name<::igris_c::msg::dds::QuestMessage> {
+    static std::string value() { return org::eclipse::cyclonedds::topic::TopicTraits<::igris_c::msg::dds::QuestMessage>::getTypeName(); }
+};
+
 }  // namespace topic
 }  // namespace dds
 
@@ -1464,6 +2870,17 @@ REGISTER_TOPIC_TYPE(::igris_c::msg::dds::TorqueCmd)
 REGISTER_TOPIC_TYPE(::igris_c::msg::dds::ControlModeCmd)
 REGISTER_TOPIC_TYPE(::igris_c::msg::dds::ControlModeState)
 REGISTER_TOPIC_TYPE(::igris_c::msg::dds::ServiceResponse)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::Header)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::ImageFrame)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::CompressedMessage)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::StereoConfigRequest)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::RealsenseConfigRequest)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::MonoConfigRequest)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::Vec3f)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::Vec4f)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::QuestController)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::QuestHand)
+REGISTER_TOPIC_TYPE(::igris_c::msg::dds::QuestMessage)
 
 namespace org {
 namespace eclipse {
@@ -4419,6 +5836,3604 @@ bool max(T &streamer, const ::igris_c::msg::dds::ServiceResponse &instance, enti
 template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
 bool max(S &str, const ::igris_c::msg::dds::ServiceResponse &instance, bool as_key) {
     auto &props = get_type_props<::igris_c::msg::dds::ServiceResponse>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::Header>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::Header &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.seq()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.sec()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.nanosec()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write_string(streamer, instance.frame_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::Header &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Header>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::Header &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.seq()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.sec()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.nanosec()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read_string(streamer, instance.frame_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::Header &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Header>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::Header &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.seq()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.sec()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.nanosec()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move_string(streamer, instance.frame_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::Header &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Header>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::Header &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.seq()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.sec()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.nanosec()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max_string(streamer, instance.frame_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::Header &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Header>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::ImageFrame>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::ImageFrame &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write_string(streamer, instance.encoding(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.is_bigendian()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.step()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(false, true))
+                return false;
+            {
+                uint32_t se_1 = uint32_t(instance.image_data().size());
+                if (!write(streamer, se_1))
+                    return false;
+                if (se_1 > 0 && !write(streamer, instance.image_data()[0], se_1))
+                    return false;
+            }  // end sequence 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::ImageFrame &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::ImageFrame>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::ImageFrame &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read_string(streamer, instance.encoding(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.is_bigendian()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.step()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(false, true))
+                return false;
+            {
+                uint32_t se_1 = uint32_t(instance.image_data().size());
+                if (!read(streamer, se_1))
+                    return false;
+                instance.image_data().resize(se_1);
+                if (se_1 > 0 && !read(streamer, instance.image_data()[0], se_1))
+                    return false;
+            }  // end sequence 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::ImageFrame &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::ImageFrame>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::ImageFrame &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move_string(streamer, instance.encoding(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.is_bigendian()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.step()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(false, true))
+                return false;
+            {
+                uint32_t se_1 = uint32_t(instance.image_data().size());
+                if (!move(streamer, se_1))
+                    return false;
+                if (se_1 > 0 && !move(streamer, uint8_t(), se_1))
+                    return false;
+            }  // end sequence 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::ImageFrame &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::ImageFrame>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::ImageFrame &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max_string(streamer, instance.encoding(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.is_bigendian()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.step()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(false, true))
+                return false;
+            {
+                uint32_t se_1 = 0;
+                if (!max(streamer, se_1))
+                    return false;
+                if (se_1 > 0 && !max(streamer, uint8_t(), se_1))
+                    return false;
+            }  // end sequence 1
+            if (!streamer.finish_consecutive())
+                return false;
+            streamer.position(SIZE_MAX);
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::ImageFrame &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::ImageFrame>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::CompressedMessage>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::CompressedMessage &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write_string(streamer, instance.format(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(false, true))
+                return false;
+            {
+                uint32_t se_1 = uint32_t(instance.image_data().size());
+                if (!write(streamer, se_1))
+                    return false;
+                if (se_1 > 0 && !write(streamer, instance.image_data()[0], se_1))
+                    return false;
+            }  // end sequence 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::CompressedMessage &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::CompressedMessage>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::CompressedMessage &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read_string(streamer, instance.format(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(false, true))
+                return false;
+            {
+                uint32_t se_1 = uint32_t(instance.image_data().size());
+                if (!read(streamer, se_1))
+                    return false;
+                instance.image_data().resize(se_1);
+                if (se_1 > 0 && !read(streamer, instance.image_data()[0], se_1))
+                    return false;
+            }  // end sequence 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::CompressedMessage &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::CompressedMessage>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::CompressedMessage &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move_string(streamer, instance.format(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(false, true))
+                return false;
+            {
+                uint32_t se_1 = uint32_t(instance.image_data().size());
+                if (!move(streamer, se_1))
+                    return false;
+                if (se_1 > 0 && !move(streamer, uint8_t(), se_1))
+                    return false;
+            }  // end sequence 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::CompressedMessage &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::CompressedMessage>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::CompressedMessage &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max_string(streamer, instance.format(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(false, true))
+                return false;
+            {
+                uint32_t se_1 = 0;
+                if (!max(streamer, se_1))
+                    return false;
+                if (se_1 > 0 && !max(streamer, uint8_t(), se_1))
+                    return false;
+            }  // end sequence 1
+            if (!streamer.finish_consecutive())
+                return false;
+            streamer.position(SIZE_MAX);
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::CompressedMessage &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::CompressedMessage>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::StereoConfigRequest>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::StereoConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.stereo_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.stereo_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.stereo_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.stereo_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.enable_stereo()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::StereoConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::StereoConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::StereoConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.stereo_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.stereo_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.stereo_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.stereo_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.enable_stereo()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::StereoConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::StereoConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::StereoConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.stereo_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.stereo_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.stereo_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.stereo_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.enable_stereo()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::StereoConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::StereoConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::StereoConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.stereo_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.stereo_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.stereo_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.stereo_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.enable_stereo()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::StereoConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::StereoConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::RealsenseConfigRequest>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::RealsenseConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.d_435_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.d_435_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.d_435_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.d_435_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.enable_color()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.enable_depth()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.enable_ir()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::RealsenseConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::RealsenseConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::RealsenseConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.d_435_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.d_435_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.d_435_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.d_435_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.enable_color()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.enable_depth()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.enable_ir()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::RealsenseConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::RealsenseConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::RealsenseConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.d_435_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.d_435_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.d_435_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.d_435_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.enable_color()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.enable_depth()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.enable_ir()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::RealsenseConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::RealsenseConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::RealsenseConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.d_435_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.d_435_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.d_435_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.d_435_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.enable_color()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.enable_depth()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.enable_ir()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::RealsenseConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::RealsenseConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::MonoConfigRequest>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::MonoConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.mono_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.mono_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.mono_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.mono_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.enable_mono()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::MonoConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::MonoConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::MonoConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.mono_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.mono_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.mono_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.mono_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.enable_mono()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::MonoConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::MonoConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::MonoConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.mono_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.mono_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.mono_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.mono_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.enable_mono()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::MonoConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::MonoConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::MonoConfigRequest &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max_string(streamer, instance.request_id(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.mono_width()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.mono_height()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.mono_fps()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.mono_jpeg_quality()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.enable_mono()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::MonoConfigRequest &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::MonoConfigRequest>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::Vec3f>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::Vec3f &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.data()[0], instance.data().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::Vec3f &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Vec3f>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::Vec3f &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.data()[0], instance.data().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::Vec3f &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Vec3f>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::Vec3f &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.data()[0], instance.data().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::Vec3f &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Vec3f>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::Vec3f &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.data()[0], instance.data().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::Vec3f &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Vec3f>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::Vec4f>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::Vec4f &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.data()[0], instance.data().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::Vec4f &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Vec4f>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::Vec4f &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.data()[0], instance.data().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::Vec4f &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Vec4f>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::Vec4f &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.data()[0], instance.data().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::Vec4f &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Vec4f>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::Vec4f &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.data()[0], instance.data().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::Vec4f &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::Vec4f>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::QuestController>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::QuestController &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.linear_velocity()[0], instance.linear_velocity().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.angular_velocity()[0], instance.angular_velocity().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.joystick()[0], instance.joystick().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.touchpad()[0], instance.touchpad().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.index_trigger()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.hand_trigger()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 9:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.button_one()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 10:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.button_two()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 11:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.button_three()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 12:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.button_four()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 13:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.joystick_click()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 14:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.index_trigger_touch()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 15:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.hand_trigger_touch()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::QuestController &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestController>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::QuestController &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.linear_velocity()[0], instance.linear_velocity().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.angular_velocity()[0], instance.angular_velocity().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.joystick()[0], instance.joystick().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.touchpad()[0], instance.touchpad().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.index_trigger()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.hand_trigger()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 9:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.button_one()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 10:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.button_two()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 11:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.button_three()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 12:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.button_four()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 13:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.joystick_click()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 14:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.index_trigger_touch()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 15:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.hand_trigger_touch()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::QuestController &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestController>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::QuestController &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.linear_velocity()[0], instance.linear_velocity().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.angular_velocity()[0], instance.angular_velocity().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.joystick()[0], instance.joystick().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.touchpad()[0], instance.touchpad().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.index_trigger()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.hand_trigger()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 9:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.button_one()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 10:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.button_two()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 11:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.button_three()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 12:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.button_four()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 13:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.joystick_click()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 14:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.index_trigger_touch()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 15:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.hand_trigger_touch()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::QuestController &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestController>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::QuestController &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.linear_velocity()[0], instance.linear_velocity().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.angular_velocity()[0], instance.angular_velocity().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.joystick()[0], instance.joystick().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.touchpad()[0], instance.touchpad().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.index_trigger()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.hand_trigger()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 9:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.button_one()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 10:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.button_two()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 11:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.button_three()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 12:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.button_four()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 13:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.joystick_click()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 14:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.index_trigger_touch()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 15:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.hand_trigger_touch()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::QuestController &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestController>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::QuestHand>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::QuestHand &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.confidence()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.pinch()[0], instance.pinch().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.pinch_strength()[0], instance.pinch_strength().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.finger_confidence()[0], instance.finger_confidence().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.tip_valid()[0], instance.tip_valid().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.tip_position()) {  // array depth 1
+                if (!write(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 9:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.tip_quaternion()) {  // array depth 1
+                if (!write(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 10:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!write(streamer, instance.tip_to_thumb_distance()[0], instance.tip_to_thumb_distance().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::QuestHand &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestHand>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::QuestHand &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.confidence()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.pinch()[0], instance.pinch().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.pinch_strength()[0], instance.pinch_strength().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.finger_confidence()[0], instance.finger_confidence().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.tip_valid()[0], instance.tip_valid().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (auto &a_1 : instance.tip_position()) {  // array depth 1
+                if (!read(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 9:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (auto &a_1 : instance.tip_quaternion()) {  // array depth 1
+                if (!read(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 10:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!read(streamer, instance.tip_to_thumb_distance()[0], instance.tip_to_thumb_distance().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::QuestHand &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestHand>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::QuestHand &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.confidence()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.pinch()[0], instance.pinch().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.pinch_strength()[0], instance.pinch_strength().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.finger_confidence()[0], instance.finger_confidence().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.tip_valid()[0], instance.tip_valid().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.tip_position()) {  // array depth 1
+                if (!move(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 9:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.tip_quaternion()) {  // array depth 1
+                if (!move(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 10:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!move(streamer, instance.tip_to_thumb_distance()[0], instance.tip_to_thumb_distance().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::QuestHand &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestHand>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::QuestHand &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.confidence()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.pinch()[0], instance.pinch().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.pinch_strength()[0], instance.pinch_strength().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.finger_confidence()[0], instance.finger_confidence().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.tip_valid()[0], instance.tip_valid().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.tip_position()) {  // array depth 1
+                if (!max(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 9:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.tip_quaternion()) {  // array depth 1
+                if (!max(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 10:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, true))
+                return false;
+            if (!max(streamer, instance.tip_to_thumb_distance()[0], instance.tip_to_thumb_distance().size()))
+                return false;
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::QuestHand &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestHand>();
+    str.set_mode(cdr_stream::stream_mode::max, as_key);
+    return max(str, instance, props.data());
+}
+
+template <> propvec &get_type_props<::igris_c::msg::dds::QuestMessage>();
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool write(T &streamer, const ::igris_c::msg::dds::QuestMessage &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.tracking_mode()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.head_position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.head_quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.head_euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.controller()) {  // array depth 1
+                if (!write(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.hand()) {  // array depth 1
+                if (!write(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write_string(streamer, instance.ip(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!write(streamer, instance.battery()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool write(S &str, const ::igris_c::msg::dds::QuestMessage &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestMessage>();
+    str.set_mode(cdr_stream::stream_mode::write, as_key);
+    return write(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool read(T &streamer, ::igris_c::msg::dds::QuestMessage &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.tracking_mode()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.head_position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.head_quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.head_euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (auto &a_1 : instance.controller()) {  // array depth 1
+                if (!read(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (auto &a_1 : instance.hand()) {  // array depth 1
+                if (!read(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read_string(streamer, instance.ip(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!read(streamer, instance.battery()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool read(S &str, ::igris_c::msg::dds::QuestMessage &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestMessage>();
+    str.set_mode(cdr_stream::stream_mode::read, as_key);
+    return read(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool move(T &streamer, const ::igris_c::msg::dds::QuestMessage &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.tracking_mode()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.head_position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.head_quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.head_euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.controller()) {  // array depth 1
+                if (!move(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.hand()) {  // array depth 1
+                if (!move(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move_string(streamer, instance.ip(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!move(streamer, instance.battery()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool move(S &str, const ::igris_c::msg::dds::QuestMessage &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestMessage>();
+    str.set_mode(cdr_stream::stream_mode::move, as_key);
+    return move(str, instance, props.data());
+}
+
+template <typename T, std::enable_if_t<std::is_base_of<cdr_stream, T>::value, bool> = true>
+bool max(T &streamer, const ::igris_c::msg::dds::QuestMessage &instance, entity_properties_t *props) {
+    (void)instance;
+    if (!streamer.start_struct(*props))
+        return false;
+    auto prop = streamer.first_entity(props);
+    while (prop) {
+        switch (prop->m_id) {
+        case 0:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.header(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 1:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.tracking_mode()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 2:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.head_position(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 3:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.head_quaternion(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 4:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.head_euler(), prop))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 5:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.controller()) {  // array depth 1
+                if (!max(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 6:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!streamer.start_consecutive(true, false))
+                return false;
+            for (const auto &a_1 : instance.hand()) {  // array depth 1
+                if (!max(streamer, a_1, prop))
+                    return false;
+            }  // array depth 1
+            if (!streamer.finish_consecutive())
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 7:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max_string(streamer, instance.ip(), 0))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        case 8:
+            if (!streamer.start_member(*prop))
+                return false;
+            if (!max(streamer, instance.battery()))
+                return false;
+            if (!streamer.finish_member(*prop))
+                return false;
+            break;
+        }
+        prop = streamer.next_entity(prop);
+    }
+    return streamer.finish_struct(*props);
+}
+
+template <typename S, std::enable_if_t<std::is_base_of<cdr_stream, S>::value, bool> = true>
+bool max(S &str, const ::igris_c::msg::dds::QuestMessage &instance, bool as_key) {
+    auto &props = get_type_props<::igris_c::msg::dds::QuestMessage>();
     str.set_mode(cdr_stream::stream_mode::max, as_key);
     return max(str, instance, props.data());
 }
