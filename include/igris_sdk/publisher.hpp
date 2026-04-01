@@ -1,5 +1,7 @@
 #pragma once
 
+#include "igris_sdk/channel_factory.hpp"
+
 #include <dds/dds.hpp>
 #include <memory>
 #include <string>
@@ -9,6 +11,7 @@ namespace igris_sdk {
 template <typename MessageType> class Publisher {
   public:
     Publisher(const std::string &topic_name);
+    Publisher(ChannelFactory *channel_factory, const std::string &topic_name);
     ~Publisher();
 
     // Initialize DDS publisher (Cyclone DDS)
@@ -27,6 +30,7 @@ template <typename MessageType> class Publisher {
   private:
     std::string topic_name_;
     bool initialized_;
+    ChannelFactory *channel_factory_;
 
     std::shared_ptr<dds::pub::Publisher> publisher_;
     std::shared_ptr<dds::topic::Topic<MessageType>> topic_;

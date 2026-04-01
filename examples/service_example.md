@@ -1,36 +1,36 @@
 # Service API Example
 
-IgrisC_Client를 사용한 서비스 API 호출 예제입니다.
+Console example for calling the IGRIS SDK service APIs through `IgrisC_Client`.
 
 ---
 
-## 개요
+## Overview
 
-이 예제는 IGRIS SDK의 Service Client를 사용하여 로봇 시스템을 제어하는 방법을 보여줍니다.
+This example shows how to control robot system state from a blocking command-line menu.
 
-### 시연 기능
+### Covered operations
 
-- **BMS 초기화**: 배터리 관리 시스템 및 모터 초기화
-- **토크 제어**: 모터 토크 활성화/비활성화
-- **제어 모드 전환**: LOW_LEVEL / HIGH_LEVEL 모드 전환
+- **BMS initialization**: initialize the BMS, the motors, or both
+- **Torque control**: enable or disable motor torque
+- **Control mode switching**: move between `LOW_LEVEL` and `HIGH_LEVEL`
 
 ---
 
-## 실행 방법
+## Run
 
 ```bash
-# 기본 실행 (domain_id = 0)
+# Default run (domain_id = 0)
 ./service_example
 
-# domain_id 지정
+# Run with an explicit domain ID
 ./service_example 1
 ```
 
-> **Note**: Domain ID는 robot controller(bridge)와 동일해야 합니다. 기본값은 0입니다.
+> **Note**: The domain ID must match the robot controller or bridge. The default is `0`.
 
 ---
 
-## 메뉴
+## Menu
 
 ```
 === Service API Menu ===
@@ -49,88 +49,86 @@ Select (1-9):
 
 ---
 
-## 코드 구조
+## Code Structure
 
-### 1. SDK 및 Client 초기화
+### 1. SDK and client initialization
 
 ```cpp
 #include <igris_sdk/channel_factory.hpp>
 #include <igris_sdk/igris_c_client.hpp>
 
-// SDK 초기화
+// SDK Initialization
 ChannelFactory::Instance()->Init(domain_id);
 
-// Service Client 초기화
+// Service Client Initialization
 IgrisC_Client client;
 client.Init();
-client.SetTimeout(10.0f);  // 타임아웃 설정 (초)
+client.SetTimeout(10.0f); // set timeout (s)
 ```
 
-### 2. BMS 초기화
+### 2. BMS initialization calls
 
 ```cpp
-// BMS만 초기화
-ServiceResponse res = client.InitBms(BmsInitType::BMS_INIT, 30000);
+// Only Initialize BMS
+ServiceResponse res = client.InitBms(BmsInitType::BMS_INIT, 60000);
 
-// 모터만 초기화
-res = client.InitBms(BmsInitType::MOTOR_INIT, 30000);
+// Only Initialize Motor
+res = client.InitBms(BmsInitType::MOTOR_INIT, 60000);
 
-// BMS + 모터 동시 초기화
-res = client.InitBms(BmsInitType::BMS_AND_MOTOR_INIT, 30000);
+// Initialize BMS & Motor
+res = client.InitBms(BmsInitType::BMS_AND_MOTOR_INIT, 60000);
 
-// BMS 종료
-res = client.InitBms(BmsInitType::BMS_INIT_NONE, 30000);
+// Stop BMS
+res = client.InitBms(BmsInitType::BMS_INIT_NONE, 60000);
 ```
 
-### 3. 토크 제어
+### 3. Torque control calls
 
 ```cpp
-// 토크 활성화
-ServiceResponse res = client.SetTorque(TorqueType::TORQUE_ON, 30000);
+// Activate Torque
+ServiceResponse res = client.SetTorque(TorqueType::TORQUE_ON, 60000);
 
-// 토크 비활성화
-res = client.SetTorque(TorqueType::TORQUE_OFF, 30000);
+// Deactivate Torque
+res = client.SetTorque(TorqueType::TORQUE_OFF, 60000);
 ```
 
-### 4. 제어 모드 전환
+### 4. Control mode switching
 
 ```cpp
-// LOW_LEVEL 모드 (직접 모터 제어)
+// LOW_LEVEL mode (control motor directly)
 ServiceResponse res = client.SetControlMode(
-    ControlMode::CONTROL_MODE_LOW_LEVEL, 30000);
+    ControlMode::CONTROL_MODE_LOW_LEVEL, 60000);
 
-// HIGH_LEVEL 모드 (상위 제어기 사용)
+// HIGH_LEVEL mode (control with high-level controller)
 res = client.SetControlMode(
-    ControlMode::CONTROL_MODE_HIGH_LEVEL, 30000);
+    ControlMode::CONTROL_MODE_HIGH_LEVEL, 60000);
 ```
 
-### 5. 응답 처리
+### 5. Response handling
 
 ```cpp
-ServiceResponse res = client.SomeService(...);
-
 if (res.success()) {
-  std::cout << "Success: " << res.message() << std::endl;
+    std::cout << "Success: " << res.message() << std::endl;
 } else {
-  std::cerr << "Failed: " << res.message() << std::endl;
+    std::cerr << "Failed: " << res.message() << std::endl;
 }
 ```
 
 ---
 
-## 일반적인 사용 순서
+## Typical Sequence
 
-로봇을 LOW_LEVEL 모드로 제어하기 위한 일반적인 순서:
+Typical order when preparing the robot for low-level control:
 
-1. **3번** - Init BMS and Motor
-2. **5번** - Torque ON
-3. **7번** - Control Mode: LOW_LEVEL
-4. (lowlevel_example 실행)
-5. **6번** - Torque OFF
+1. Select `3` for **Init BMS and Motor**
+2. Select `5` for **Torque ON**
+3. Select `7` for **Control Mode: LOW_LEVEL**
+4. Run `lowlevel_example` or start low-level publishing from `sdk_gui_client`
+5. Select `6` for **Torque OFF** when finished
 
 ---
 
-## 출력 예시
+## Example Output
 
 ```
 === IGRIS SDK Service Example ===
@@ -159,25 +157,22 @@ Calling InitBms(BMS_AND_MOTOR_INIT)...
 
 ---
 
-## API 타임아웃
+## Timeouts
 
-모든 서비스 호출은 타임아웃을 지정할 수 있습니다:
+All service calls allow a timeout value.
 
 ```cpp
-// 클라이언트 기본 타임아웃 설정
-client.SetTimeout(10.0f);  // 10초
-
-// 개별 호출 타임아웃 (밀리초)
-client.InitBms(BmsInitType::BMS_INIT, 30000);  // 30초
+client.SetTimeout(10.0f);  // default client timeout in seconds
+client.InitBms(BmsInitType::BMS_INIT, 60000);  // per-call timeout in ms
 ```
 
-> **Note**: BMS 및 모터 초기화는 시간이 오래 걸릴 수 있으므로 충분한 타임아웃을 설정하세요.
+> **Note**: BMS and motor initialization can take a long time. Use a timeout that is large enough for the real hardware.
 
 ---
 
-## 주의사항
+## Notes
 
-- 서비스 호출은 동기 방식으로 완료될 때까지 블로킹됩니다
-- BMS 및 모터 초기화는 수십 초가 소요될 수 있습니다
-- 토크 비활성화 시 로봇이 무력화되므로 주의하세요
-- 제어 모드 전환 전 현재 상태를 확인하세요
+- Service calls are synchronous and block until they finish or time out
+- BMS and motor initialization may take tens of seconds
+- Disabling torque can make the robot go limp; use it carefully
+- Confirm the current robot state before switching control modes

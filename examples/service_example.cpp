@@ -78,49 +78,49 @@ int main(int argc, char **argv) {
         switch (choice) {
         case 1:
             std::cout << "Calling InitBms(BMS_INIT)..." << std::endl;
-            res = client.InitBms(BmsInitType::BMS_INIT, 30000);
+            res = client.InitBms(BmsInitType::BMS_INIT, 60000);
             PrintResult("Init BMS", res);
             break;
 
         case 2:
             std::cout << "Calling InitBms(MOTOR_INIT)..." << std::endl;
-            res = client.InitBms(BmsInitType::MOTOR_INIT, 30000);
+            res = client.InitBms(BmsInitType::MOTOR_INIT, 60000);
             PrintResult("Init Motor", res);
             break;
 
         case 3:
             std::cout << "Calling InitBms(BMS_AND_MOTOR_INIT)..." << std::endl;
-            res = client.InitBms(BmsInitType::BMS_AND_MOTOR_INIT, 30000);
+            res = client.InitBms(BmsInitType::BMS_AND_MOTOR_INIT, 60000);
             PrintResult("Init BMS and Motor", res);
             break;
 
         case 4:
             std::cout << "Calling InitBms(BMS_INIT_NONE)..." << std::endl;
-            res = client.InitBms(BmsInitType::BMS_INIT_NONE, 30000);
+            res = client.InitBms(BmsInitType::BMS_INIT_NONE, 60000);
             PrintResult("BMS OFF", res);
             break;
 
         case 5:
             std::cout << "Calling SetTorque(TORQUE_ON)..." << std::endl;
-            res = client.SetTorque(TorqueType::TORQUE_ON, 30000);
+            res = client.SetTorque(TorqueType::TORQUE_ON, 60000);
             PrintResult("Torque ON", res);
             break;
 
         case 6:
             std::cout << "Calling SetTorque(TORQUE_OFF)..." << std::endl;
-            res = client.SetTorque(TorqueType::TORQUE_OFF, 30000);
+            res = client.SetTorque(TorqueType::TORQUE_OFF, 60000);
             PrintResult("Torque OFF", res);
             break;
 
         case 7:
             std::cout << "Calling SetControlMode(LOW_LEVEL)..." << std::endl;
-            res = client.SetControlMode(ControlMode::CONTROL_MODE_LOW_LEVEL, 30000);
+            res = client.SetControlMode(ControlMode::CONTROL_MODE_LOW_LEVEL, 60000);
             PrintResult("Control Mode: LOW_LEVEL", res);
             break;
 
         case 8:
             std::cout << "Calling SetControlMode(HIGH_LEVEL)..." << std::endl;
-            res = client.SetControlMode(ControlMode::CONTROL_MODE_HIGH_LEVEL, 30000);
+            res = client.SetControlMode(ControlMode::CONTROL_MODE_HIGH_LEVEL, 60000);
             PrintResult("Control Mode: HIGH_LEVEL", res);
             break;
 

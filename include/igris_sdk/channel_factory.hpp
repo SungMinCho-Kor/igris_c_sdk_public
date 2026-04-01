@@ -26,7 +26,7 @@ class ChannelFactory {
      * @brief Initialize the factory with basic parameters
      * @param domain_id DDS domain ID (default: 0)
      */
-    void Init(int32_t domain_id = 0);
+    void Init(int32_t domain_id = 0, const std::string &config = "");
 
     /**
      * @brief Check if factory is initialized

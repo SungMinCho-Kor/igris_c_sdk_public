@@ -34,7 +34,15 @@ using ControlModeCmd   = igris_c::msg::dds::ControlModeCmd;
 using ControlModeState = igris_c::msg::dds::ControlModeState;
 
 // Service response
-using ServiceResponse = igris_c::msg::dds::ServiceResponse;
+using ServiceResponse        = igris_c::msg::dds::ServiceResponse;
+using StereoConfigRequest    = igris_c::msg::dds::StereoConfigRequest;
+using RealsenseConfigRequest = igris_c::msg::dds::RealsenseConfigRequest;
+using MonoConfigRequest      = igris_c::msg::dds::MonoConfigRequest;
+using Vec3f                  = igris_c::msg::dds::Vec3f;
+using Vec4f                  = igris_c::msg::dds::Vec4f;
+using QuestController        = igris_c::msg::dds::QuestController;
+using QuestHand              = igris_c::msg::dds::QuestHand;
+using QuestMessage           = igris_c::msg::dds::QuestMessage;
 
 // Motor error flags (from status_bits field in MotorState)
 enum MotorError : uint32_t {

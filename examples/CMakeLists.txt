@@ -14,7 +14,10 @@ if(NOT igris_sdk_DIR)
   elseif(DEFINED ENV{COLCON_PREFIX_PATH})
     # Colcon workspace - use install directory
     set(igris_sdk_DIR "$ENV{COLCON_PREFIX_PATH}/igris_sdk/lib/cmake/igris_sdk")
-  elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../../install/igris_sdk/lib/cmake/igris_sdk/igris_sdk-config.cmake")
+  elseif(
+    EXISTS
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../install/igris_sdk/lib/cmake/igris_sdk/igris_sdk-config.cmake"
+  )
     # Development environment: colcon workspace (ros2_ws/src/igris_c_sdk/examples/)
     set(igris_sdk_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../install/igris_sdk/lib/cmake/igris_sdk")
   endif()
@@ -25,6 +28,8 @@ find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 # Find required packages for GUI
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+
+find_package(OpenCV REQUIRED)
 
 # Fetch ImGui
 include(FetchContent)
@@ -44,7 +49,7 @@ add_library(
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
 target_link_libraries(
   imgui
-  PUBLIC OpenGL::GL glfw
+  PUBLIC OpenGL::GL glfw ${OpenCV_LIBS}
 )
 
 # SDK GUI Client (full-featured example)
@@ -87,8 +92,39 @@ set_target_properties(
   hand_gui_client PROPERTIES INSTALL_RPATH "$ORIGIN/../lib" BUILD_RPATH_USE_ORIGIN ON
 )
 
+# Sensor viewer example (sensor data visualization example)
+add_executable(sensor_viewer sensor_viewer.cpp)
+target_link_libraries(
+  sensor_viewer igris_sdk::igris_sdk ${OpenCV_LIBS}
+)
+
+set_target_properties(
+  sensor_viewer PROPERTIES INSTALL_RPATH "$ORIGIN/../lib" BUILD_RPATH_USE_ORIGIN ON
+)
+
+# MetaQuest raw viewer example
+add_executable(metaquest metaquest.cpp)
+target_link_libraries(
+  metaquest igris_sdk::igris_sdk
+)
+
+set_target_properties(metaquest PROPERTIES INSTALL_RPATH "$ORIGIN/../lib" BUILD_RPATH_USE_ORIGIN ON)
+
+# Sensor configuration example (sensor data visualization example)
+add_executable(sensor_configuration sensor_config.cpp)
+target_link_libraries(
+  sensor_configuration igris_sdk::igris_sdk
+)
+
+set_target_properties(
+  sensor_configuration PROPERTIES INSTALL_RPATH "$ORIGIN/../lib" BUILD_RPATH_USE_ORIGIN ON
+)
+
 message(STATUS "Examples configured:")
 message(STATUS "  - sdk_gui_client: Full-featured GUI client example")
 message(STATUS "  - lowlevel_example: Pub/Sub low-level control example")
 message(STATUS "  - service_example: Service API example")
 message(STATUS "  - hand_gui_client: Hand control GUI client example")
+message(STATUS "  - sensor_viewer: Sensor data visualization example")
+message(STATUS "  - metaquest: MetaQuest raw data table example")
+message(STATUS "  - sensor_configuration: Sensor configuration example")

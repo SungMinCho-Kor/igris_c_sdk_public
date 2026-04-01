@@ -128,8 +128,8 @@ static std::array<float, 31> g_cmd_motor_pos     = {};  // Command motor positio
 static std::array<float, 31> g_current_joint_pos = {};  // Current actual joint positions
 static std::array<float, 31> g_current_motor_pos = {};  // Current actual motor positions
 static std::mutex g_target_mutex;
-static float g_convergence_time = 1.5f;  // Convergence time in seconds (0=instant, 1.5=default, 3=slow)
-static const float RESET_DURATION = 5.0f;  // Fixed duration for Reset/Home buttons
+static float g_convergence_time   = 1.5f;             // Convergence time in seconds (0=instant, 1.5=default, 3=slow)
+static const float RESET_DURATION = 5.0f;             // Fixed duration for Reset/Home buttons
 static std::atomic<bool> g_reset_mode_active(false);  // Use fixed duration for Reset/Home
 static std::atomic<uint32_t> g_lowcmd_publish_count(0);
 static LowCmd g_last_published_cmd;
@@ -143,19 +143,19 @@ static const size_t MAX_LOG_LINES = 50;
 // PD gains default values
 static const std::array<float, 31> DEFAULT_KP = {
     50.0f,  25.0f,  25.0f,                              // Waist
-    500.0f, 200.0f, 50.0f, 500.0f, 300.0f, 300.0f,      // Left leg
-    500.0f, 200.0f, 50.0f, 500.0f, 300.0f, 300.0f,      // Right leg
-    50.0f,  50.0f,  30.0f, 30.0f,  5.0f,   5.0f,  5.0f, // Left arm
-    50.0f,  50.0f,  30.0f, 30.0f,  5.0f,   5.0f,  5.0f, // Right arm
+    500.0f, 200.0f, 50.0f, 500.0f, 50.0f, 50.0f,        // Left leg
+    500.0f, 200.0f, 50.0f, 500.0f, 50.0f, 50.0f,        // Right leg
+    50.0f,  50.0f,  30.0f, 30.0f,  5.0f,  5.0f,  5.0f,  // Left arm
+    50.0f,  50.0f,  30.0f, 30.0f,  5.0f,  5.0f,  5.0f,  // Right arm
     2.0f,   5.0f                                        // Neck
 };
 static const std::array<float, 31> DEFAULT_KD = {
-    0.8f,  0.8f, 0.8f,                          // Waist
-    3.0f,  0.5f, 0.5f,  3.0f,  1.5f, 1.5f,      // Left leg
-    3.0f,  0.5f, 0.5f,  3.0f,  1.5f, 1.5f,      // Right leg
-    0.5f,  0.5f, 0.15f, 0.15f, 0.1f, 0.1f, 0.1f, // Left arm
-    0.5f,  0.5f, 0.15f, 0.15f, 0.1f, 0.1f, 0.1f, // Right arm
-    0.05f, 0.1f                                  // Neck
+    0.8f,  0.8f, 0.8f,                            // Waist
+    3.0f,  0.5f, 0.5f,  3.0f,  3.0f, 3.0f,        // Left leg
+    3.0f,  0.5f, 0.5f,  3.0f,  3.0f, 3.0f,        // Right leg
+    0.5f,  0.5f, 0.15f, 0.15f, 0.1f, 0.1f, 0.1f,  // Left arm
+    0.5f,  0.5f, 0.15f, 0.15f, 0.1f, 0.1f, 0.1f,  // Right arm
+    0.05f, 0.1f                                   // Neck
 };
 
 // PD gains (editable, initialized from defaults)
@@ -169,10 +169,10 @@ static std::array<float, 31> g_pos_edit = {};
 
 // Kp/Kd confirmation popup state
 static bool g_show_gain_confirm_popup = false;
-static int g_pending_gain_joint = -1;      // Joint index for pending change
-static bool g_pending_is_kp = true;        // true = kp, false = kd
-static float g_pending_old_value = 0.0f;
-static float g_pending_new_value = 0.0f;
+static int g_pending_gain_joint       = -1;    // Joint index for pending change
+static bool g_pending_is_kp           = true;  // true = kp, false = kd
+static float g_pending_old_value      = 0.0f;
+static float g_pending_new_value      = 0.0f;
 
 void SignalHandler(int) { g_running = false; }
 
@@ -204,12 +204,12 @@ void ControlModeStateCallback(const ControlModeState &state) {
 // Helper to convert ControlMode to string
 const char *ControlModeToString(ControlMode mode) {
     switch (mode) {
-        case ControlMode::CONTROL_MODE_LOW_LEVEL:
-            return "LOW_LEVEL";
-        case ControlMode::CONTROL_MODE_HIGH_LEVEL:
-            return "HIGH_LEVEL";
-        default:
-            return "UNKNOWN";
+    case ControlMode::CONTROL_MODE_LOW_LEVEL:
+        return "LOW_LEVEL";
+    case ControlMode::CONTROL_MODE_HIGH_LEVEL:
+        return "HIGH_LEVEL";
+    default:
+        return "UNKNOWN";
     }
 }
 
@@ -254,7 +254,7 @@ void CallInitBmsAsync(IgrisC_Client *client, BmsInitType type, const char *type_
 
     std::string type_name_copy(type_name);
     std::thread([client, type, type_name_copy]() {
-        auto res = client->InitBms(type, 30000);
+        auto res = client->InitBms(type, 60000);
         std::string result =
             std::string("InitBms(") + type_name_copy + "): " + (res.success() ? "SUCCESS" : "FAILED") + " - " + res.message();
         AddLog(result);
@@ -272,7 +272,7 @@ void CallSetTorqueAsync(IgrisC_Client *client, TorqueType type, const char *type
 
     std::string type_name_copy(type_name);
     std::thread([client, type, type_name_copy]() {
-        auto res = client->SetTorque(type, 30000);
+        auto res = client->SetTorque(type, 60000);
         std::string result =
             std::string("SetTorque(") + type_name_copy + "): " + (res.success() ? "SUCCESS" : "FAILED") + " - " + res.message();
         AddLog(result);
@@ -290,7 +290,7 @@ void CallSetControlModeAsync(IgrisC_Client *client, ControlMode mode, const char
 
     std::string mode_name_copy(mode_name);
     std::thread([client, mode, mode_name_copy]() {
-        auto res = client->SetControlMode(mode, 30000);
+        auto res = client->SetControlMode(mode, 60000);
         std::string result =
             std::string("SetControlMode(") + mode_name_copy + "): " + (res.success() ? "SUCCESS" : "FAILED") + " - " + res.message();
         AddLog(result);
@@ -587,8 +587,8 @@ int main(int argc, char **argv) {
             ImGui::SameLine();
             if (ImGui::Button("Reset Gains", ImVec2(button_width, 30))) {
                 for (int i = 0; i < 31; i++) {
-                    g_kp[i] = DEFAULT_KP[i];
-                    g_kd[i] = DEFAULT_KD[i];
+                    g_kp[i]      = DEFAULT_KP[i];
+                    g_kd[i]      = DEFAULT_KD[i];
                     g_kp_edit[i] = DEFAULT_KP[i];
                     g_kd_edit[i] = DEFAULT_KD[i];
                 }
@@ -606,15 +606,15 @@ int main(int argc, char **argv) {
                         g_slider_values[i] = 0.0f;
                     }
                     // Set Shoulder Roll L (16) to 0.4, Shoulder Roll R (23) to -0.4
-                    const int SHOULDER_ROLL_L = 16;
-                    const int SHOULDER_ROLL_R = 23;
+                    const int SHOULDER_ROLL_L           = 16;
+                    const int SHOULDER_ROLL_R           = 23;
                     g_target_joint_pos[SHOULDER_ROLL_L] = 0.4f;
                     g_target_joint_pos[SHOULDER_ROLL_R] = -0.4f;
                     g_target_motor_pos[SHOULDER_ROLL_L] = 0.4f;   // Also set motor pos
                     g_target_motor_pos[SHOULDER_ROLL_R] = -0.4f;  // Also set motor pos
-                    g_slider_values[SHOULDER_ROLL_L] = 0.4f;
-                    g_slider_values[SHOULDER_ROLL_R] = -0.4f;
-                    g_reset_mode_active = true;  // Use 5s duration
+                    g_slider_values[SHOULDER_ROLL_L]    = 0.4f;
+                    g_slider_values[SHOULDER_ROLL_R]    = -0.4f;
+                    g_reset_mode_active                 = true;  // Use 5s duration
                     AddLog("Home position (5s transition)");
                 } else {
                     AddLog("Enable LOW_LEVEL mode first to use Home");
@@ -646,9 +646,9 @@ int main(int argc, char **argv) {
 
             // Column headers (aligned with slider layout)
             float content_width = ImGui::GetContentRegionAvail().x;
-            float kd_width = 50;
-            float kp_width = 60;
-            float spacing = ImGui::GetStyle().ItemSpacing.x;
+            float kd_width      = 50;
+            float kp_width      = 60;
+            float spacing       = ImGui::GetStyle().ItemSpacing.x;
 
             ImGui::Text("Name");
             ImGui::SameLine(190);
@@ -659,8 +659,8 @@ int main(int argc, char **argv) {
             ImGui::Text("  Kd");
             ImGui::Separator();
 
-            const float FINE_STEP = 0.001f;  // Fine adjustment step for arrow keys
-            static int selected_joint = -1;  // Currently selected joint for fine control
+            const float FINE_STEP     = 0.001f;  // Fine adjustment step for arrow keys
+            static int selected_joint = -1;      // Currently selected joint for fine control
 
             // Handle Up/Down arrow keys for joint selection (outside loop to prevent multiple triggers)
             if (g_lowlevel_active) {
@@ -694,12 +694,12 @@ int main(int argc, char **argv) {
                     float pos_min, pos_max;
                     if (g_show_motor == 1) {
                         target_val = &g_target_motor_pos[i];
-                        pos_min = MOTOR_POS_MIN[i];
-                        pos_max = MOTOR_POS_MAX[i];
+                        pos_min    = MOTOR_POS_MIN[i];
+                        pos_max    = MOTOR_POS_MAX[i];
                     } else {
                         target_val = &g_target_joint_pos[i];
-                        pos_min = JOINT_POS_MIN[i];
-                        pos_max = JOINT_POS_MAX[i];
+                        pos_min    = JOINT_POS_MIN[i];
+                        pos_max    = JOINT_POS_MAX[i];
                     }
 
                     // Selectable name - click to select for fine control
@@ -731,10 +731,10 @@ int main(int argc, char **argv) {
                     ImGui::SetNextItemWidth(60);
                     ImGui::InputFloat(kp_label, &g_kp_edit[i], 0, 0, "%.1f");
                     if (ImGui::IsItemDeactivatedAfterEdit() && g_kp_edit[i] != g_kp[i]) {
-                        g_pending_gain_joint = i;
-                        g_pending_is_kp = true;
-                        g_pending_old_value = g_kp[i];
-                        g_pending_new_value = g_kp_edit[i];
+                        g_pending_gain_joint      = i;
+                        g_pending_is_kp           = true;
+                        g_pending_old_value       = g_kp[i];
+                        g_pending_new_value       = g_kp_edit[i];
                         g_show_gain_confirm_popup = true;
                     } else if (!ImGui::IsItemActive()) {
                         g_kp_edit[i] = g_kp[i];
@@ -747,10 +747,10 @@ int main(int argc, char **argv) {
                     ImGui::SetNextItemWidth(50);
                     ImGui::InputFloat(kd_label, &g_kd_edit[i], 0, 0, "%.2f");
                     if (ImGui::IsItemDeactivatedAfterEdit() && g_kd_edit[i] != g_kd[i]) {
-                        g_pending_gain_joint = i;
-                        g_pending_is_kp = false;
-                        g_pending_old_value = g_kd[i];
-                        g_pending_new_value = g_kd_edit[i];
+                        g_pending_gain_joint      = i;
+                        g_pending_is_kp           = false;
+                        g_pending_old_value       = g_kd[i];
+                        g_pending_new_value       = g_kd_edit[i];
                         g_show_gain_confirm_popup = true;
                     } else if (!ImGui::IsItemActive()) {
                         g_kd_edit[i] = g_kd[i];
@@ -767,11 +767,11 @@ int main(int argc, char **argv) {
                         }
 
                         if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) {
-                            *target_val = std::max(pos_min, *target_val - step);
+                            *target_val         = std::max(pos_min, *target_val - step);
                             g_reset_mode_active = false;  // Use normal duration
                         }
                         if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
-                            *target_val = std::min(pos_max, *target_val + step);
+                            *target_val         = std::min(pos_max, *target_val + step);
                             g_reset_mode_active = false;  // Use normal duration
                         }
                     }
@@ -806,10 +806,10 @@ int main(int argc, char **argv) {
                     ImGui::SetNextItemWidth(60);
                     ImGui::InputFloat(kp_label, &g_kp_edit[i], 0, 0, "%.1f");
                     if (ImGui::IsItemDeactivatedAfterEdit() && g_kp_edit[i] != g_kp[i]) {
-                        g_pending_gain_joint = i;
-                        g_pending_is_kp = true;
-                        g_pending_old_value = g_kp[i];
-                        g_pending_new_value = g_kp_edit[i];
+                        g_pending_gain_joint      = i;
+                        g_pending_is_kp           = true;
+                        g_pending_old_value       = g_kp[i];
+                        g_pending_new_value       = g_kp_edit[i];
                         g_show_gain_confirm_popup = true;
                     } else if (!ImGui::IsItemActive()) {
                         g_kp_edit[i] = g_kp[i];
@@ -822,10 +822,10 @@ int main(int argc, char **argv) {
                     ImGui::SetNextItemWidth(50);
                     ImGui::InputFloat(kd_label, &g_kd_edit[i], 0, 0, "%.2f");
                     if (ImGui::IsItemDeactivatedAfterEdit() && g_kd_edit[i] != g_kd[i]) {
-                        g_pending_gain_joint = i;
-                        g_pending_is_kp = false;
-                        g_pending_old_value = g_kd[i];
-                        g_pending_new_value = g_kd_edit[i];
+                        g_pending_gain_joint      = i;
+                        g_pending_is_kp           = false;
+                        g_pending_old_value       = g_kd[i];
+                        g_pending_new_value       = g_kd_edit[i];
                         g_show_gain_confirm_popup = true;
                     } else if (!ImGui::IsItemActive()) {
                         g_kd_edit[i] = g_kd[i];
@@ -846,8 +846,8 @@ int main(int argc, char **argv) {
             ImGui::Separator();
 
             // Check connection timeout (2 seconds without message = disconnected)
-            auto now = std::chrono::steady_clock::now();
-            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - g_last_controlmodestate_time).count();
+            auto now          = std::chrono::steady_clock::now();
+            auto elapsed      = std::chrono::duration_cast<std::chrono::milliseconds>(now - g_last_controlmodestate_time).count();
             bool is_connected = g_controlmodestate_connected && (elapsed < 2000);
 
             if (is_connected) {
@@ -934,12 +934,13 @@ int main(int argc, char **argv) {
                         std::lock_guard<std::mutex> lock_state(g_lowstate_mutex);
                         ImGui::BeginChild("CmdStateScroll", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
                         for (int i = 0; i < 31; i++) {
-                            float cmd_q = g_last_published_cmd.motors()[i].q();
+                            float cmd_q   = g_last_published_cmd.motors()[i].q();
                             float state_q = g_latest_lowstate.joint_state()[i].q();
-                            float diff = cmd_q - state_q;
+                            float diff    = cmd_q - state_q;
                             // Color red if difference > 0.05 rad
                             if (std::abs(diff) > 0.05f) {
-                                ImGui::TextColored(ImVec4(1, 0.3f, 0.3f, 1), "J%2d: cmd=%7.3f : state=%7.3f  (diff=%+.3f)", i, cmd_q, state_q, diff);
+                                ImGui::TextColored(ImVec4(1, 0.3f, 0.3f, 1), "J%2d: cmd=%7.3f : state=%7.3f  (diff=%+.3f)", i, cmd_q,
+                                                   state_q, diff);
                             } else {
                                 ImGui::Text("J%2d: cmd=%7.3f : state=%7.3f  (diff=%+.3f)", i, cmd_q, state_q, diff);
                             }
@@ -1005,7 +1006,7 @@ int main(int argc, char **argv) {
                     AddLog("Calling SetControlMode(LOW_LEVEL) + StartLowCmd...");
 
                     std::thread([&client]() {
-                        auto res = client.SetControlMode(ControlMode::CONTROL_MODE_LOW_LEVEL, 30000);
+                        auto res = client.SetControlMode(ControlMode::CONTROL_MODE_LOW_LEVEL, 60000);
                         if (res.success()) {
                             AddLog("SetControlMode(LOW_LEVEL): SUCCESS - " + std::string(res.message()));
                             // Initialize target and command positions to current positions
@@ -1087,7 +1088,7 @@ int main(int argc, char **argv) {
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         if (ImGui::BeginPopupModal("Confirm Gain Change", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-            const char *gain_name = g_pending_is_kp ? "Kp" : "Kd";
+            const char *gain_name  = g_pending_is_kp ? "Kp" : "Kd";
             const char *joint_name = (g_show_motor == 1) ? MOTOR_NAMES[g_pending_gain_joint] : JOINT_NAMES[g_pending_gain_joint];
 
             ImGui::Text("Change %s gain for Joint %d (%s)?", gain_name, g_pending_gain_joint, joint_name);
@@ -1098,14 +1099,14 @@ int main(int argc, char **argv) {
 
             if (ImGui::Button("Apply", ImVec2(120, 0))) {
                 if (g_pending_is_kp) {
-                    g_kp[g_pending_gain_joint] = g_pending_new_value;
+                    g_kp[g_pending_gain_joint]      = g_pending_new_value;
                     g_kp_edit[g_pending_gain_joint] = g_pending_new_value;
                 } else {
-                    g_kd[g_pending_gain_joint] = g_pending_new_value;
+                    g_kd[g_pending_gain_joint]      = g_pending_new_value;
                     g_kd_edit[g_pending_gain_joint] = g_pending_new_value;
                 }
-                AddLog("Gain changed: Joint " + std::to_string(g_pending_gain_joint) + " " +
-                       gain_name + " = " + std::to_string(g_pending_new_value));
+                AddLog("Gain changed: Joint " + std::to_string(g_pending_gain_joint) + " " + gain_name + " = " +
+                       std::to_string(g_pending_new_value));
                 ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine();

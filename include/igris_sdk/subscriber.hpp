@@ -1,5 +1,7 @@
 #pragma once
 
+#include "igris_sdk/channel_factory.hpp"
+
 #include <dds/dds.hpp>
 #include <functional>
 #include <memory>
@@ -33,6 +35,7 @@ template <typename MessageType> class Subscriber {
     using CallbackType = std::function<void(const MessageType &)>;
 
     Subscriber(const std::string &topic_name);
+    Subscriber(ChannelFactory *channel_factory, const std::string &topic_name);
     ~Subscriber();
 
     // Initialize DDS subscriber with callback (Cyclone DDS)
@@ -48,6 +51,7 @@ template <typename MessageType> class Subscriber {
   private:
     std::string topic_name_;
     bool initialized_;
+    ChannelFactory *channel_factory_;
 
     std::shared_ptr<dds::sub::Subscriber> subscriber_;
     std::shared_ptr<dds::topic::Topic<MessageType>> topic_;
