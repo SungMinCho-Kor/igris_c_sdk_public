@@ -1,79 +1,79 @@
 # IGRIS C SDK
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/robrosinc/igris_c_sdk_public)
 
-IGRIS_C 통신을 위한 SDK입니다.
+Communication SDK using cyclonedds for IGRIS-C
 
-## 요구 사항
+## Requirements
 
 - **OS**: Linux (Ubuntu 24.04)
-- **CMake**: 3.14 이상
-- **컴파일러**: C++17 호환 (GCC 9+, Clang 10+)
-- **Python**: 3.12 (Python 바인딩 사용 시)
+- **CMake**: 3.14 or higher
+- **Compiler**: C++17 compatible (GCC 9+, Clang 10+)
+- **Python**: 3.12 (when using Python bindings)
 
-### 필수 의존성
+### Required Dependencies
 
 ```bash
 # Ubuntu/Debian
 sudo apt install libssl-dev
 ```
 
-### 예제 빌드 시 추가 의존성
+### Additional Dependencies for Building Examples
 
 ```bash
-# Ubuntu/Debian (example 빌드에 필요)
+# Ubuntu/Debian (required for building examples)
 sudo apt install libglfw3-dev libgl1-mesa-dev
 ```
 
-## 디렉토리 구조
+## Directory Structure
 
 ```
 igris_c_sdk_public/
-├── include/igris_sdk/     # SDK 헤더 파일
+├── include/igris_sdk/     # SDK header files
 ├── lib/
-│   ├── libigris_sdk.a     # 정적 라이브러리
-│   └── cmake/             # CMake 설정 파일
+│   ├── libigris_sdk.a     # Static library
+│   └── cmake/             # CMake configuration files
 ├── thirdparty/
-│   └── include/           # Cyclone DDS 헤더
-├── examples/              # 예제 코드
-├── dist/                  # Python wheel 패키지
-├── licenses/              # 서드파티 라이센스
+│   └── include/           # Cyclone DDS headers
+├── examples/              # Example code
+├── dist/                  # Python wheel packages
+├── licenses/              # Third-party licenses
 ├── LICENSE
 └── NOTICE
 ```
 
-## C++ 프로젝트에서 사용하기
+## Using in C++ Projects
 
-### CMake 설정
+### CMake Configuration
 
 ```cmake
-# SDK 경로 설정 (igris_c_sdk_public 위치에 맞게 수정)
+# Set SDK path (modify according to igris_c_sdk_public location)
 set(igris_sdk_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../igris_c_sdk_public/lib/cmake/igris_sdk")
 find_package(igris_sdk REQUIRED)
 
-# 타겟에 링크
+# Link to target
 target_link_libraries(your_target igris_sdk::igris_sdk)
 ```
 
-## Python 바인딩 사용하기
+## Using Python Bindings
 
-### 설치
+### Installation
 
 ```bash
-# 가상환경 생성 및 활성화
+# Create and activate virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
-# wheel 패키지 설치
+# Install wheel package
 pip install dist/igris_c_sdk-*.whl
 ```
 
-## 예제 빌드 및 실행
+## Building and Running Examples
 
 ```bash
 cd examples
 ./build.sh
 ```
 
+## License
 
-## 라이센스
-
-이 SDK는 Cyclone DDS 라이브러리를 정적 링크하여 포함하고 있습니다. 서드파티 라이센스는 `licenses/` 디렉토리를 참조하세요.
+This SDK includes the Cyclone DDS library statically linked. Refer to the `licenses/` directory for third-party licenses.
