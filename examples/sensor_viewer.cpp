@@ -2,10 +2,13 @@
 #include <chrono>
 #include <csignal>
 #include <cstdlib>
-#include <dds/dds.hpp>
+#include <igris_sdk/channel_factory.hpp>
+#include <igris_sdk/igris_c_client.hpp>
 #include <igris_sdk/igris_c_msgs.hpp>
+#include <igris_sdk/subscriber.hpp>
 #include <iomanip>
 #include <iostream>
+#include <mutex>
 #include <numeric>
 #include <opencv2/opencv.hpp>
 #include <sstream>
@@ -22,6 +25,7 @@ struct status {
 namespace {
 int domain_id = 10;
 
+using namespace igris_sdk;
 using CompressedMessage = igris_c::msg::dds::CompressedMessage;
 
 std::atomic<bool> g_stop{false};
@@ -80,12 +84,13 @@ std::string format_rate(double bytes_per_sec) {
 
 struct Stream {
     std::string name;
-    dds::topic::Topic<CompressedMessage> topic;
-    dds::sub::DataReader<CompressedMessage> reader;
+    Subscriber<CompressedMessage> subscriber;
     StreamStats stats;
+    cv::Mat latest_image;
+    mutable std::mutex mutex;
+    bool has_frame = false;
 
-    Stream(dds::domain::DomainParticipant &participant, dds::sub::Subscriber &subscriber, const std::string &topic_name)
-        : name(topic_name), topic(participant, topic_name), reader(subscriber, topic) {}
+    explicit Stream(const std::string &topic_name) : name(topic_name), subscriber(topic_name) {}
 };
 }  // namespace
 
@@ -100,7 +105,7 @@ int main(int argc, char **argv) {
     }
 
     std::vector<std::string> topics;
-    for (int i = 1; i < argc; ++i) {
+    for (int i = 2; i < argc; ++i) {
         topics.emplace_back(argv[i]);
     }
     if (topics.empty()) {
@@ -110,59 +115,82 @@ int main(int argc, char **argv) {
         };
     }
 
-    dds::domain::DomainParticipant participant(domain_id);
-    dds::sub::Subscriber subscriber(participant);
+    ChannelFactory::Instance()->Init(domain_id);
+    if (!ChannelFactory::Instance()->IsInitialized()) {
+        std::cerr << "Failed to initialize ChannelFactory" << std::endl;
+        return 1;
+    }
 
-    std::vector<Stream> streams;
+    IgrisC_Client client;
+    client.Init();
+    client.SetTimeout(10.0f);
+
+    std::vector<std::unique_ptr<Stream>> streams;
     streams.reserve(topics.size());
     for (const auto &name : topics) {
-        streams.emplace_back(participant, subscriber, name);
+        streams.emplace_back(std::make_unique<Stream>(name));
         cv::namedWindow(name, cv::WINDOW_NORMAL);
     }
 
     std::vector<status> stream_status(streams.size());
     for (size_t i = 0; i < streams.size(); ++i) {
-        stream_status[i].name = streams[i].name;
+        stream_status[i].name = streams[i]->name;
+
+        if (!streams[i]->subscriber.init([stream = streams[i].get()](const CompressedMessage &msg) {
+                const auto &bytes = msg.image_data();
+                if (bytes.empty()) {
+                    return;
+                }
+
+                cv::Mat raw(1, static_cast<int>(bytes.size()), CV_8UC1, const_cast<uint8_t *>(bytes.data()));
+                cv::Mat img = cv::imdecode(raw, cv::IMREAD_UNCHANGED);
+                if (img.empty()) {
+                    return;
+                }
+
+                std::lock_guard<std::mutex> lock(stream->mutex);
+                update_stats(stream->stats, bytes.size());
+                stream->latest_image = img;
+                stream->has_frame    = true;
+            })) {
+            std::cerr << "Failed to initialize subscriber for topic: " << streams[i]->name << std::endl;
+            return 1;
+        }
     }
 
     while (!g_stop.load()) {
         bool got_data = false;
 
         for (size_t i = 0; i < streams.size(); ++i) {
-            auto &stream = streams[i];
-            auto samples = stream.reader.take();
-            for (const auto &sample : samples) {
-                if (!sample.info().valid()) {
-                    continue;
+            auto &stream = *streams[i];
+            cv::Mat frame;
+            double fps           = 0.0;
+            double bytes_per_sec = 0.0;
+            {
+                std::lock_guard<std::mutex> lock(stream.mutex);
+                if (stream.has_frame) {
+                    frame = stream.latest_image.clone();
                 }
+                fps           = stream.stats.fps;
+                bytes_per_sec = stream.stats.bytes_per_sec;
+            }
+
+            if (!frame.empty()) {
                 got_data = true;
 
-                const auto &msg   = sample.data();
-                const auto &bytes = msg.image_data();
-                if (bytes.empty()) {
-                    continue;
-                }
-
-                update_stats(stream.stats, bytes.size());
-
-                cv::Mat raw(1, static_cast<int>(bytes.size()), CV_8UC1, const_cast<uint8_t *>(bytes.data()));
-                cv::Mat img = cv::imdecode(raw, cv::IMREAD_UNCHANGED);
-                if (img.empty()) {
-                    continue;
-                }
-
                 std::ostringstream oss;
-                oss << std::fixed << std::setprecision(1) << stream.stats.fps << " FPS, " << format_rate(stream.stats.bytes_per_sec);
-                cv::Scalar text_color = (stream.stats.fps <= 20.0 ? cv::Scalar(0, 0, 255) : cv::Scalar(0, 255, 0));
-                cv::putText(img, oss.str(), cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.8, text_color, 2);
-                stream_status[i].fps           = static_cast<float>(stream.stats.fps);
-                stream_status[i].bytes_per_sec = static_cast<float>(stream.stats.bytes_per_sec);
-                cv::imshow(stream.name, img);
+                oss << std::fixed << std::setprecision(1) << fps << " FPS, " << format_rate(bytes_per_sec);
+                cv::Scalar text_color = (fps <= 20.0 ? cv::Scalar(0, 0, 255) : cv::Scalar(0, 255, 0));
+                cv::putText(frame, oss.str(), cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.8, text_color, 2);
+                stream_status[i].fps           = static_cast<float>(fps);
+                stream_status[i].bytes_per_sec = static_cast<float>(bytes_per_sec);
+                cv::imshow(stream.name, frame);
             }
         }
 
         std::cout << "\x1B[2J\x1B[H";
         std::cout << "==============================\n\n";
+        std::cout << "Domain ID: " << domain_id << "\n";
         std::cout << "Stream Status:\n";
         for (const auto &s : stream_status) {
             bool low_fps            = (s.fps <= 20.0f);
@@ -197,7 +225,7 @@ int main(int argc, char **argv) {
     }
 
     for (const auto &stream : streams) {
-        cv::destroyWindow(stream.name);
+        cv::destroyWindow(stream->name);
     }
     return 0;
 }

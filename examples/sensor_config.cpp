@@ -12,6 +12,7 @@
 #include <string>
 #include <thread>
 #include <unistd.h>
+#include <vector>
 
 using StereoConfigRequest    = igris_c::msg::dds::StereoConfigRequest;
 using RealsenseConfigRequest = igris_c::msg::dds::RealsenseConfigRequest;
@@ -144,29 +145,77 @@ int getenv_int(const char *name, int fallback) {
     return static_cast<int>(parsed);
 }
 
+std::optional<int> parse_int_arg(const char *value) {
+    if (!value || value[0] == '\0') {
+        return std::nullopt;
+    }
+
+    char *end   = nullptr;
+    long parsed = std::strtol(value, &end, 10);
+    if (end == value || *end != '\0') {
+        return std::nullopt;
+    }
+
+    return static_cast<int>(parsed);
+}
+
+std::vector<std::string> collect_positional_args(int argc, char **argv) {
+    std::vector<std::string> positional_args;
+
+    for (int i = 1; i < argc; ++i) {
+        const std::string arg = argv[i];
+        if (arg == "--domain" || arg == "--domain-id" || arg == "--timeout-ms") {
+            ++i;
+            continue;
+        }
+        if (!arg.empty() && arg[0] == '-') {
+            continue;
+        }
+        positional_args.push_back(arg);
+    }
+
+    return positional_args;
+}
+
 int resolve_domain_id(int argc, char **argv) {
     for (int i = 1; i + 1 < argc; ++i) {
-        if (std::strcmp(argv[i], "--domain") == 0 && argv[i + 1] && argv[i + 1][0] != '\0') {
-            char *end   = nullptr;
-            long parsed = std::strtol(argv[i + 1], &end, 10);
-            if (end != argv[i + 1]) {
-                return static_cast<int>(parsed);
+        if ((std::strcmp(argv[i], "--domain") == 0 || std::strcmp(argv[i], "--domain-id") == 0)) {
+            auto parsed = parse_int_arg(argv[i + 1]);
+            if (parsed.has_value()) {
+                return *parsed;
             }
         }
     }
+
+    const auto positional_args = collect_positional_args(argc, argv);
+    if (!positional_args.empty()) {
+        auto parsed = parse_int_arg(positional_args[0].c_str());
+        if (parsed.has_value()) {
+            return *parsed;
+        }
+    }
+
     return getenv_int("DDS_DOMAIN_ID", kDefaultDomainId);
 }
 
 int resolve_timeout_ms(int argc, char **argv) {
     for (int i = 1; i + 1 < argc; ++i) {
-        if (std::strcmp(argv[i], "--timeout-ms") == 0 && argv[i + 1] && argv[i + 1][0] != '\0') {
-            char *end   = nullptr;
-            long parsed = std::strtol(argv[i + 1], &end, 10);
-            if (end != argv[i + 1] && parsed > 0) {
-                return static_cast<int>(parsed);
+        if (std::strcmp(argv[i], "--timeout-ms") == 0) {
+            auto parsed = parse_int_arg(argv[i + 1]);
+            if (parsed.has_value() && *parsed > 0) {
+                return *parsed;
             }
         }
     }
+
+    const auto positional_args = collect_positional_args(argc, argv);
+    if (positional_args.size() >= 2) {
+        auto parsed = parse_int_arg(positional_args[1].c_str());
+        if (parsed.has_value() && *parsed > 0) {
+            return *parsed;
+        }
+    }
+
     return kDefaultTimeoutMs;
 }
 
